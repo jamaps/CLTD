@@ -21,12 +21,3 @@ Contains the code used to generate and validate the crosswalk tables. This utili
 ### Further Information
 
 A paper detailing this work is currently being prepared for The Canadian Geographer (will add link once it is in press)
-
-```
-@article{allentaylor2018,
- author    = "Allen, Jeff and Taylor, Zack",
- title     = "A new tool for neighbourhood change research: The Canadian longitudinal census tract database, 1971–2016",
- journal   = "The Canadian Geographer"
- year      =  2018,
-}
-```
