@@ -73,23 +73,8 @@ for cw in cw_in:
             out_row = [cw[0],cw[1],new_weight]
             new_cw.append(out_row)
             break
-# print len(new_cw)
-#
-# # get source ids
-# sids = []
-# with open('ct_pop_totals/' + source_ids, 'r') as csvfile:
-#     reader = csv.reader(csvfile)
-#     for row in reader:
-#         sids.append(row[1])
-# print len(sids)
-#
-# tids = []
-# with open('ct_pop_totals/' + target_ids, 'r') as csvfile:
-#     reader = csv.reader(csvfile)
-#     for row in reader:
-#         tids.append(row[1])
-# print len(tids)
-#
+
+
 # print "meow"
 
 print len(new_cw)
@@ -103,21 +88,5 @@ with open(out_cw, 'w') as csvfile:
         if row[2] < 2:
             writer.writerow(row)
 
-# Works! - still need to add in any missing Source or Targets!
 
-# new_new_cw = []
-#
-# for sid in sids:
-#     for row in new_cw:
-#         if si
-#     # print c, row
-#     if s not in sids:
-#         new_new_cw.append([,'-1',1,'1'])
-#     if row[1] not in tids:
-#         new_new_cw.append(['-1',row[1],'-1','1'])
-#     new_new_cw.append(new_cw)
-#
-# for row in new_new_cw:
-#     if row[1] == '-1':
-#         print row
-#
+
