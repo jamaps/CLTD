@@ -4,7 +4,18 @@ This repository includes code to bridge Canadian historical census tract data to
 
 The data and a manual describing its use is available on Dataverse: http://dx.doi.org/10.5683/SP/EUG3DT
 
-A paper detailing this work has recently been accepted for publication in The Canadian Geographer (will add link once it is in press)
+A paper detailing this work has recently been published in The Canadian Geographer
+
+```
+@article{allentaylor2018,
+  title={A new tool for neighbourhood change research: The Canadian Longitudinal Census Tract Database, 1971--2016},
+  author={Allen, Jeff and Taylor, Zack},
+  journal={The Canadian Geographer/Le G{\'e}ographe canadien},
+  year={2018},
+  publisher={Wiley Online Library},
+  url={https://doi.org/10.1111/cag.12467}
+}
+```
 
 
 ### apportionment_scripts
