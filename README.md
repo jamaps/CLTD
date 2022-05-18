@@ -1,6 +1,10 @@
+***Currently being updated to include data from 2021 and prior to 1971***
+
+---
+
 # Canadian Longitudinal Tract Database (CLTD)
 
-This repository includes code to bridge Canadian historical census tract data to a common set of geographic boundaries.
+This repository includes code to bridge Canadian historical census tract data (1971-2016) to a common set of geographic boundaries (2016).
 
 The data and a manual describing its use is available on Dataverse: http://dx.doi.org/10.5683/SP/EUG3DT
 
