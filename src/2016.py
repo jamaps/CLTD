@@ -1,4 +1,5 @@
 import psycopg2
+import interpolation
 from config import config as conf
 
 # connect to database
@@ -14,3 +15,8 @@ connection = psycopg2.connect(
 	)
 )
 connection.autocommit = True
+
+interpolation.poparea()
+
+
+
