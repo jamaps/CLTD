@@ -1,4 +1,5 @@
 # creating spatial indices for all input tables
+
 import psycopg2
 from config import config as conf
 
@@ -17,20 +18,19 @@ connection = psycopg2.connect(
 connection.autocommit = True
 
 # getting input table names
-query = """
-SELECT table_name
-FROM information_schema.tables
-WHERE table_name LIKE 'in_%'
-      AND table_type = 'BASE TABLE'
-ORDER BY table_name;
-"""
-
 table_names = []
 with connection.cursor() as cursor:
-	cursor.execute(query)
+	cursor.execute("""
+	SELECT table_name
+	FROM information_schema.tables
+	WHERE table_name LIKE 'in_%'
+		AND table_type = 'BASE TABLE'
+	ORDER BY table_name;
+	""")
 	for row in cursor.fetchall():
 		table_names.append(row[0])
 
+# spatial indices for each table
 for table in table_names:
 	print(table)
 	query = """DROP INDEX IF EXISTS %s_geom_idx;
