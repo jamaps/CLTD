@@ -15,7 +15,6 @@ ON source_db_pop.dbuid = C.dbuid
 GROUP BY C.ctuid
 );
 
-
 DROP TABLE IF EXISTS x_source_blocks;
 CREATE TABLE x_source_blocks AS (
     SELECT 
@@ -26,8 +25,7 @@ CREATE TABLE x_source_blocks AS (
     FROM in_2016_cbf_db
     WHERE ctuid IS NOT NULL
     AND cmauid = '535'
-    ORDER BY ctuid)
-    LIMIT 1000;
+    ORDER BY ctuid);
 
 DROP INDEX IF EXISTS x_source_blocks_geom_idx;
 CREATE INDEX x_source_blocks_geom_idx
@@ -47,16 +45,7 @@ CREATE TABLE x_source_blocks_clipped AS (
 );
 
 DROP TABLE IF EXISTS x_source_blocks_clipped_ready;
-
-
--- join in block and ct pop
-
--- get total area of block, join in
-
--- final block file should have:
--- dbuid, ctuid, db_pop, db_area, ct_pop
-
-
+CREATE TABLE x_source_blocks_clipped_ready AS (
 WITH db_pop AS 
     (SELECT 
     "DBpop2016/IDpop2016" as db_pop,
@@ -71,7 +60,7 @@ db_pop_ctuid AS
     db_pop.db_dwe AS db_dwe
     FROM db_pop LEFT JOIN (SELECT dbuid, ctuid FROM in_2016_cbf_db) AS C
     ON db_pop.dbuid = C.dbuid
-    WHERE C.ctuid IS NOT NULL)
+    WHERE C.ctuid IS NOT NULL),
 db_ct_op AS 
     (SELECT 
     db_pop_ctuid.ctuid,
@@ -84,22 +73,44 @@ db_ct_op AS
     ON db_pop_ctuid.ctuid = pop_ct_2016.ctuid
     ORDER BY ctuid)
 SELECT
+x_source_blocks_clipped.ctuid,
 x_source_blocks_clipped.dbuid,
-x_source_blocks_clipped.dbuid,
-ST_AREA(x_source_blocks_clipped.geom::geography) as db_area,
-db_pop.db_pop,
-db_pop.db_dwe,
-db_pop.ct_pop,
-db_pop.ct_dwe
+ST_AREA(x_source_blocks_clipped.geom::geography)::integer as db_area,
+db_ct_op.db_pop,
+db_ct_op.db_dwe,
+db_ct_op.ct_pop,
+db_ct_op.ct_dwe,
 x_source_blocks_clipped.geom
-FROM x_source_blocks_clipped LEFT JOIN db_pop
-ON x_source_blocks_clipped.dbuid = db_pop.dbuid;
+FROM x_source_blocks_clipped LEFT JOIN db_ct_op
+ON x_source_blocks_clipped.dbuid = db_ct_op.dbuid
+);
 
+DROP INDEX IF EXISTS x_source_blocks_clipped_ready_geom_idx;
+CREATE INDEX x_source_blocks_clipped_ready_geom_idx
+ON x_source_blocks_clipped_ready
+USING GIST (geom);
+
+DROP TABLE IF EXISTS x_source_target;
+CREATE TABLE x_source_target AS (
+    SELECT
+    x_source_blocks_clipped_ready.dbuid AS source_dbuid,
+    x_source_blocks_clipped_ready.ctuid AS source_ctuid,
+    in_2021_dbf_ct.ctuid AS target_ctuid,
+    x_source_blocks_clipped_ready.db_pop,
+    x_source_blocks_clipped_ready.db_dwe,
+    x_source_blocks_clipped_ready.ct_pop,
+    x_source_blocks_clipped_ready.ct_dwe,
+    x_source_blocks_clipped_ready.db_area,
+    ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2021_dbf_ct.geom)) AS geom
+    FROM x_source_blocks_clipped_ready LEFT JOIN in_2021_dbf_ct
+    ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2021_dbf_ct.geom))
+    WHERE x_source_blocks_clipped_ready.geom && in_2021_dbf_ct.geom
+);
 
 SELECT
-	*
-FROM
-	information_schema.columns
-WHERE
-	table_schema = 'public'
-	AND table_name = 'in_2016_gaf_pt';
+source_ctuid,
+target_ctuid,
+SUM(ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_pop / ct_pop) AS w_pop
+FROM x_source_target
+GROUP BY source_ctuid, target_ctuid
+ORDER BY source_ctuid, target_ctuid;
