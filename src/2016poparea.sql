@@ -98,19 +98,29 @@ CREATE TABLE x_source_target AS (
     in_2021_dbf_ct.ctuid AS target_ctuid,
     x_source_blocks_clipped_ready.db_pop,
     x_source_blocks_clipped_ready.db_dwe,
-    x_source_blocks_clipped_ready.ct_pop,
-    x_source_blocks_clipped_ready.ct_dwe,
-    x_source_blocks_clipped_ready.db_area,
+    x_source_blocks_clipped_ready.ct_pop + 0.001 AS ct_pop,
+    x_source_blocks_clipped_ready.ct_dwe + 0.001 AS ct_dwe,
+    x_source_blocks_clipped_ready.db_area + 0.001 AS db_area,
     ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2021_dbf_ct.geom)) AS geom
     FROM x_source_blocks_clipped_ready LEFT JOIN in_2021_dbf_ct
     ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2021_dbf_ct.geom))
     WHERE x_source_blocks_clipped_ready.geom && in_2021_dbf_ct.geom
 );
 
-SELECT
-source_ctuid,
-target_ctuid,
-SUM(ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_pop / ct_pop) AS w_pop
-FROM x_source_target
-GROUP BY source_ctuid, target_ctuid
-ORDER BY source_ctuid, target_ctuid;
+DROP TABLE IF EXISTS x_ct_2016_2021;
+CREATE TABLE x_ct_2016_2021 AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    SUM((ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_pop / ct_pop)) AS w_pop,
+    SUM((ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_dwe / ct_dwe)) AS w_dwe
+    FROM x_source_target
+    GROUP BY source_ctuid, target_ctuid
+    ORDER BY source_ctuid, target_ctuid
+);
+
+-- now, auto?
+--- anything not in source and target, add in
+--- remove slivers
+--- re-balance to 1
+--- make sure have both pop and dwe
