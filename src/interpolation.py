@@ -13,7 +13,9 @@ def poparea():
 	# compute total pop of source CT, join to block
 	# union blocks to target CT
 	# compute area of segments, Aint / Ak
-	# 
+	# CTi, CTj, Biarea, Bijarea, Pbi, Pcti
+	# group by CTi, CTj
+	# weight = sum (Bijarea / Biarea) (Pbi / Pcti)
 
 	return None
 
