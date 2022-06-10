@@ -91,8 +91,8 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 	if len(weights) > 1:
 
 		query = f"""
-		DROP TABLE IF EXISTS x_{crosswalk_table}_1;
-		CREATE TABLE x_{crosswalk_table}_1 AS (
+		DROP TABLE IF EXISTS {crosswalk_table};
+		CREATE TABLE {crosswalk_table} AS (
 			SELECT 
 			x_{crosswalk_table}_1_{weights[0]}.source_ctuid AS sc,
 			x_{crosswalk_table}_1_{weights[0]}.target_ctuid AS tc,
@@ -106,21 +106,26 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			AND x_{crosswalk_table}_1_{weights[0]}.target_ctuid = x_{crosswalk_table}_1_{weights[1]}.target_ctuid
 		);
 
-		UPDATE x_{crosswalk_table}_1 SET w_{weights[0]} = 0 WHERE w_{weights[0]} IS NULL;
-		UPDATE x_{crosswalk_table}_1 SET w_{weights[1]} = 0 WHERE w_{weights[1]} IS NULL;
-		UPDATE x_{crosswalk_table}_1 SET source_ctuid = sc WHERE source_ctuid IS NULL;
-		UPDATE x_{crosswalk_table}_1 SET target_ctuid = tc WHERE target_ctuid IS NULL;
-		ALTER TABLE x_{crosswalk_table}_1 DROP COLUMN sc;
-		ALTER TABLE x_{crosswalk_table}_1 DROP COLUMN tc;
+		UPDATE {crosswalk_table} SET w_{weights[0]} = 0 WHERE w_{weights[0]} IS NULL;
+		UPDATE {crosswalk_table} SET w_{weights[1]} = 0 WHERE w_{weights[1]} IS NULL;
+		UPDATE {crosswalk_table} SET source_ctuid = sc WHERE source_ctuid IS NULL;
+		UPDATE {crosswalk_table} SET target_ctuid = tc WHERE target_ctuid IS NULL;
+		ALTER TABLE {crosswalk_table} DROP COLUMN sc;
+		ALTER TABLE {crosswalk_table} DROP COLUMN tc;
+
+		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[0]};
+		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[1]};
 		"""
 	
 	elif len(weights) == 1:
 
 		query = f"""
-		DROP TABLE IF EXISTS x_{crosswalk_table}_1;
-		CREATE TABLE x_{crosswalk_table}_1 AS (
+		DROP TABLE IF EXISTS {crosswalk_table};
+		CREATE TABLE {crosswalk_table} AS (
 			SELECT * FROM x_{crosswalk_table}_1_{weights[0]}
 		);
+
+		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[0]};
 		"""
 
 	else:
