@@ -127,8 +127,8 @@ CREATE TABLE x_ct_2016_2021 AS (
     SELECT
     source_ctuid,
     target_ctuid,
-    SUM((ST_AREA(x_source_target.geom::geography)::bigint / db_area) * (db_pop / ct_pop)) AS w_pop,
-    SUM((ST_AREA(x_source_target.geom::geography)::bigint / db_area) * (db_dwe / ct_dwe)) AS w_dwe
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_pop + 0.0001) / (ct_pop + 0.0001))) AS w_pop,
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_dwe + 0.0001) / (ct_dwe + 0.0001))) AS w_dwe
     FROM x_source_target
     GROUP BY source_ctuid, target_ctuid
     ORDER BY source_ctuid, target_ctuid
@@ -136,8 +136,6 @@ CREATE TABLE x_ct_2016_2021 AS (
 
 -- SELECT ctuid FROM in_2021_dbf_ct WHERE ctuid NOT IN (SELECT target_ctuid FROM x_ct_2016_2021)
 -- ORDER BY ctuid;
-
-SELECT * FROM x_ct_2016_2021; 
 
 -- now, auto?
 --- anything not in source and target, add in
