@@ -127,18 +127,21 @@ CREATE TABLE x_ct_2016_2021 AS (
     SELECT
     source_ctuid,
     target_ctuid,
-    SUM((ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_pop / ct_pop)) AS w_pop,
-    SUM((ST_AREA(x_source_target.geom::geography)::integer / db_area) * (db_dwe / ct_dwe)) AS w_dwe
+    SUM((ST_AREA(x_source_target.geom::geography)::bigint / db_area) * (db_pop / ct_pop)) AS w_pop,
+    SUM((ST_AREA(x_source_target.geom::geography)::bigint / db_area) * (db_dwe / ct_dwe)) AS w_dwe
     FROM x_source_target
     GROUP BY source_ctuid, target_ctuid
     ORDER BY source_ctuid, target_ctuid
 );
 
-SELECT ctuid FROM in_2021_dbf_ct WHERE ctuid NOT IN (SELECT target_ctuid FROM x_ct_2016_2021)
-ORDER BY ctuid;
+-- SELECT ctuid FROM in_2021_dbf_ct WHERE ctuid NOT IN (SELECT target_ctuid FROM x_ct_2016_2021)
+-- ORDER BY ctuid;
+
+SELECT * FROM x_ct_2016_2021; 
 
 -- now, auto?
 --- anything not in source and target, add in
 --- remove slivers
 --- re-balance to 1
 --- make sure have both pop and dwe 
+
