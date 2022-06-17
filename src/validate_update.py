@@ -44,7 +44,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			target_ctuid,
 			ROUND(w_{weight}_1, 8) AS w_{weight}_1
 			FROM sum_source_{weight}_join 
-			WHERE source_count = 1 OR w_{weight}_1 > 0.005),
+			WHERE source_count = 1 OR w_{weight}_1 > 0.025),
 		sum_source_{weight}_1 AS (SELECT 
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
@@ -86,7 +86,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			cursor.execute(query)
 
 
-	print("saving output as x_" + crosswalk_table + "_1")
+	print("saving output as x_" + crosswalk_table)
 
 	if len(weights) > 1:
 
@@ -135,4 +135,23 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 	with connection.cursor() as cursor:
 		cursor.execute(query)
 
+	with connection.cursor() as cursor:
+		cursor.execute(f"SELECT COUNT(DISTINCT source_ctuid) FROM {crosswalk_table};")
+		result = cursor.fetchone();
+		print(result)
+	with connection.cursor() as cursor:
+		cursor.execute(f"SELECT COUNT(DISTINCT ctuid) FROM {source};")
+		result = cursor.fetchone();
+		print(result)
+	with connection.cursor() as cursor:
+		cursor.execute(f"SELECT COUNT(DISTINCT target_ctuid) FROM {crosswalk_table};")
+		result = cursor.fetchone();
+		print(result)
+	with connection.cursor() as cursor:
+		cursor.execute(f"SELECT COUNT(DISTINCT ctuid) FROM {target};")
+		result = cursor.fetchone();
+		print(result)
+
+update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
 update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
