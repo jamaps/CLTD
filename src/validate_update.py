@@ -39,12 +39,19 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			FROM x_{crosswalk_table}
 			LEFT JOIN sum_source_{weight}
 			ON x_{crosswalk_table}.source_ctuid = sum_source_{weight}.source_ctuid),
+		sum_target AS (SELECT 
+			target_ctuid AS target_ctuid,
+			COUNT(*) AS target_count
+			FROM x_{crosswalk_table}
+			GROUP BY target_ctuid
+			ORDER BY target_ctuid),
 		x_ct_reduce AS (SELECT 
-			source_ctuid,
-			target_ctuid,
+			sum_source_{weight}_join.source_ctuid,
+			sum_source_{weight}_join.target_ctuid,
 			ROUND(w_{weight}_1, 8) AS w_{weight}_1
-			FROM sum_source_{weight}_join 
-			WHERE source_count = 1 OR w_{weight}_1 > 0.025),
+			FROM sum_source_{weight}_join LEFT JOIN sum_target
+			ON sum_source_{weight}_join.target_ctuid = sum_target.target_ctuid
+			WHERE source_count = 1 OR target_count = 1 OR w_{weight}_1 > 0.042),
 		sum_source_{weight}_1 AS (SELECT 
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
@@ -85,7 +92,6 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		with connection.cursor() as cursor:
 			cursor.execute(query)
 
-
 	print("saving output as x_" + crosswalk_table)
 
 	if len(weights) > 1:
@@ -115,6 +121,14 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 
 		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[0]};
 		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[1]};
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[1]} = w_{weights[0]}
+		WHERE source_ctuid IN (SELECT source_ctuid FROM ct_2011_2016 WHERE w_{weights[1]} = 0 AND w_{weights[0]} > 0);
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = w_{weights[1]}
+		WHERE source_ctuid IN (SELECT source_ctuid FROM ct_2011_2016 WHERE w_{weights[0]} = 0 AND w_{weights[1]} > 0);
 		"""
 
 	elif len(weights) == 1:
