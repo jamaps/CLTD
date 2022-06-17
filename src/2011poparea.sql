@@ -1,20 +1,22 @@
-DROP TABLE IF EXISTS pop_ct_2016;
-CREATE TABLE pop_ct_2016 AS (
+-- create CT population table
+DROP TABLE IF EXISTS pop_ct_2011;
+CREATE TABLE pop_ct_2011 AS (
 WITH source_db_pop AS 
     (SELECT 
-    "DBpop2016/IDpop2016" as db_pop,
-    "DBtdwell2016/IDtlog2016" as db_dwe,
-    "DBuid/IDidu"::varchar as dbuid
-    FROM in_2016_gaf_pt)
+    (CASE WHEN dbpop~E'^\\d+$' THEN dbpop::integer ELSE 0 END) AS db_pop,
+    (CASE WHEN dbtdwell~E'^\\d+$' THEN dbtdwell::integer ELSE 0 END) AS db_dwe,
+    dbuid as dbuid
+    FROM in_2011_gaf_pt)
 SELECT
 C.ctuid,
 sum(source_db_pop.db_pop) AS ct_pop,
 sum(source_db_pop.db_dwe) AS ct_dwe
-FROM source_db_pop LEFT JOIN (SELECT dbuid, ctuid FROM in_2016_cbf_db) AS C
+FROM source_db_pop LEFT JOIN (SELECT dbuid, ctuid FROM in_2011_cbf_db) AS C
 ON source_db_pop.dbuid = C.dbuid
 GROUP BY C.ctuid
 );
 
+-- get minimal table of source blocks, and add a spatial index
 DROP TABLE IF EXISTS x_source_blocks;
 CREATE TABLE x_source_blocks AS (
     SELECT 
@@ -22,7 +24,7 @@ CREATE TABLE x_source_blocks AS (
     ctuid,
     cmauid,
     geom 
-    FROM in_2016_cbf_db
+    FROM in_2011_cbf_db
     WHERE ctuid IS NOT NULL
     ORDER BY ctuid);
 
@@ -31,6 +33,8 @@ CREATE INDEX x_source_blocks_geom_idx
 ON x_source_blocks
 USING GIST (geom);
 
+
+-- clip the source blocks by the built up land layer, then union out any completly clipped away
 DROP TABLE IF EXISTS x_source_blocks_clipped;
 CREATE TABLE x_source_blocks_clipped AS (
     SELECT
@@ -48,32 +52,35 @@ CREATE TABLE x_source_blocks_clipped_all AS (
     (SELECT * FROM x_source_blocks_clipped)
     UNION ALL
     (WITH J AS (SELECT 
-        in_2016_cbf_db.dbuid,
+        in_2011_cbf_db.dbuid,
         x_source_blocks_clipped.dbuid AS clipped_db,
-        in_2016_cbf_db.ctuid,
-        in_2016_cbf_db.geom 
-        FROM in_2016_cbf_db
+        in_2011_cbf_db.ctuid,
+        in_2011_cbf_db.geom 
+        FROM in_2011_cbf_db
         LEFT JOIN x_source_blocks_clipped ON
-        in_2016_cbf_db.dbuid = x_source_blocks_clipped.dbuid
-        WHERE in_2016_cbf_db.ctuid IS NOT NULL)
+        in_2011_cbf_db.dbuid = x_source_blocks_clipped.dbuid
+        WHERE in_2011_cbf_db.ctuid IS NOT NULL)
     SELECT dbuid, ctuid, geom FROM J WHERE clipped_db IS NULL)
 );
 
+
+-- Add in the population and dwelling data to ready the blocks for join to target tracts
+-- Also give it a spatial index
 DROP TABLE IF EXISTS x_source_blocks_clipped_ready;
 CREATE TABLE x_source_blocks_clipped_ready AS (
 WITH db_pop AS 
     (SELECT 
-    "DBpop2016/IDpop2016" as db_pop,
-    "DBtdwell2016/IDtlog2016" as db_dwe,
-    "DBuid/IDidu"::varchar as dbuid
-    FROM in_2016_gaf_pt),
+    (CASE WHEN dbpop~E'^\\d+$' THEN dbpop::integer ELSE 0 END) AS db_pop,
+    (CASE WHEN dbtdwell~E'^\\d+$' THEN dbtdwell::integer ELSE 0 END) AS db_dwe,
+    dbuid as dbuid
+    FROM in_2011_gaf_pt),
 db_pop_ctuid AS 
     (SELECT
     C.ctuid,
     C.dbuid,
     db_pop.db_pop AS db_pop,
     db_pop.db_dwe AS db_dwe
-    FROM db_pop LEFT JOIN (SELECT dbuid, ctuid FROM in_2016_cbf_db) AS C
+    FROM db_pop LEFT JOIN (SELECT dbuid, ctuid FROM in_2011_cbf_db) AS C
     ON db_pop.dbuid = C.dbuid
     WHERE C.ctuid IS NOT NULL),
 db_ct_op AS 
@@ -82,10 +89,10 @@ db_ct_op AS
     db_pop_ctuid.dbuid,
     db_pop_ctuid.db_pop,
     db_pop_ctuid.db_dwe,
-    pop_ct_2016.ct_pop,
-    pop_ct_2016.ct_dwe
-    FROM db_pop_ctuid LEFT JOIN pop_ct_2016 
-    ON db_pop_ctuid.ctuid = pop_ct_2016.ctuid
+    pop_ct_2011.ct_pop,
+    pop_ct_2011.ct_dwe
+    FROM db_pop_ctuid LEFT JOIN pop_ct_2011 
+    ON db_pop_ctuid.ctuid = pop_ct_2011.ctuid
     ORDER BY ctuid)
 SELECT
 x_source_blocks_clipped_all.ctuid,
@@ -105,6 +112,14 @@ CREATE INDEX x_source_blocks_clipped_ready_geom_idx
 ON x_source_blocks_clipped_ready
 USING GIST (geom);
 
+SELECT count(*) FROM x_source_blocks;
+SELECT count(*) FROM x_source_blocks_clipped;
+SELECT count(*) FROM x_source_blocks_clipped_all;
+SELECT count(*) FROM x_source_blocks_clipped_ready;
+
+
+
+-- join to the target tracts - this case to 2021
 DROP TABLE IF EXISTS x_source_target;
 CREATE TABLE x_source_target AS (
     SELECT
@@ -122,8 +137,38 @@ CREATE TABLE x_source_target AS (
     WHERE x_source_blocks_clipped_ready.geom && in_2021_dbf_ct.geom
 );
 
-DROP TABLE IF EXISTS x_ct_2016_2021;
-CREATE TABLE x_ct_2016_2021 AS (
+DROP TABLE IF EXISTS x_ct_2011_2021;
+CREATE TABLE x_ct_2011_2021 AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_pop + 0.0001) / (ct_pop + 0.0001))) AS w_pop,
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_dwe + 0.0001) / (ct_dwe + 0.0001))) AS w_dwe
+    FROM x_source_target
+    GROUP BY source_ctuid, target_ctuid
+    ORDER BY source_ctuid, target_ctuid
+);
+
+-- join to the target tracts - this case to 2016
+DROP TABLE IF EXISTS x_source_target;
+CREATE TABLE x_source_target AS (
+    SELECT
+    x_source_blocks_clipped_ready.dbuid AS source_dbuid,
+    x_source_blocks_clipped_ready.ctuid AS source_ctuid,
+    in_2016_dbf_ct.ctuid AS target_ctuid,
+    x_source_blocks_clipped_ready.db_pop,
+    x_source_blocks_clipped_ready.db_dwe,
+    x_source_blocks_clipped_ready.ct_pop + 0.001 AS ct_pop,
+    x_source_blocks_clipped_ready.ct_dwe + 0.001 AS ct_dwe,
+    x_source_blocks_clipped_ready.db_area + 0.001 AS db_area,
+    ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2016_dbf_ct.geom)) AS geom
+    FROM x_source_blocks_clipped_ready LEFT JOIN in_2016_dbf_ct
+    ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_2016_dbf_ct.geom))
+    WHERE x_source_blocks_clipped_ready.geom && in_2016_dbf_ct.geom
+);
+
+DROP TABLE IF EXISTS x_ct_2011_2016;
+CREATE TABLE x_ct_2011_2016 AS (
     SELECT
     source_ctuid,
     target_ctuid,

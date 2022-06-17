@@ -116,7 +116,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[0]};
 		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weights[1]};
 		"""
-	
+
 	elif len(weights) == 1:
 
 		query = f"""
@@ -135,4 +135,4 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 	with connection.cursor() as cursor:
 		cursor.execute(query)
 
-update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
