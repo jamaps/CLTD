@@ -36,7 +36,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		sum_source_{weight}_join AS (SELECT 
 			x_{crosswalk_table}.*,
 			sum_source_{weight}.sum_w_{weight},
-			x_{crosswalk_table}.w_{weight} / sum_source_{weight}.sum_w_{weight} AS w_{weight}_1,
+			x_{crosswalk_table}.w_{weight} / (sum_source_{weight}.sum_w_{weight} + 0000000000000001) AS w_{weight}_1,
 			sum_source_{weight}.source_count
 			FROM x_{crosswalk_table}
 			LEFT JOIN sum_source_{weight}
@@ -74,7 +74,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		x_ct_ready AS (SELECT 
 			x_ct_reduce.source_ctuid,
 			x_ct_reduce.target_ctuid,
-			ROUND(x_ct_reduce.w_{weight}_1 / sum_source_{weight}_1.sum_w_{weight}, 8) AS w_{weight}
+			ROUND(x_ct_reduce.w_{weight}_1 / (sum_source_{weight}_1.sum_w_{weight} + 0.0000000000000001), 8) AS w_{weight}
 			FROM x_ct_reduce
 			LEFT JOIN sum_source_{weight}_1
 			ON x_ct_reduce.source_ctuid = sum_source_{weight}_1.source_ctuid),
@@ -181,6 +181,6 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		result = cursor.fetchone();
 		print(result)
 
-# update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
 update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
-# update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
