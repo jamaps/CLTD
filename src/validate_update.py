@@ -22,6 +22,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		print("Updating weights for w_" + weight)
 
 		query = f"""
+
 		DROP TABLE IF EXISTS x_{crosswalk_table}_1_{weight};
 		CREATE TABLE x_{crosswalk_table}_1_{weight} AS (
 		WITH sum_source_{weight} AS (SELECT 
@@ -41,7 +42,9 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			ON x_{crosswalk_table}.source_ctuid = sum_source_{weight}.source_ctuid),
 		sum_target AS (SELECT 
 			target_ctuid AS target_ctuid,
-			COUNT(*) AS target_count
+			COUNT(*) AS target_count,
+			SUM(w_{weight}) AS sum_target_w_{weight},
+			MAX(w_{weight}) AS max_target_w_{weight}
 			FROM x_{crosswalk_table}
 			GROUP BY target_ctuid
 			ORDER BY target_ctuid),
@@ -51,7 +54,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			ROUND(w_{weight}_1, 8) AS w_{weight}_1
 			FROM sum_source_{weight}_join LEFT JOIN sum_target
 			ON sum_source_{weight}_join.target_ctuid = sum_target.target_ctuid
-			WHERE source_count = 1 OR target_count = 1 OR w_{weight}_1 > 0.042),
+			WHERE source_count = 1 OR target_count = 1 OR w_{weight}_1 > 0.042 OR (sum_target.max_target_w_{weight} = w_{weight} AND w_{weight}_1 > 0.0001)),
 		sum_source_{weight}_1 AS (SELECT 
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
@@ -167,5 +170,5 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		print(result)
 
 update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
-update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
-update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+# update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+# update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])

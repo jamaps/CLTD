@@ -169,12 +169,38 @@ CREATE TABLE x_source_target AS (
 
 DROP TABLE IF EXISTS x_ct_2011_2016;
 CREATE TABLE x_ct_2011_2016 AS (
-    SELECT
+    (SELECT
     source_ctuid,
     target_ctuid,
     SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_pop + 0.0001) / (ct_pop + 0.0001))) AS w_pop,
     SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_dwe + 0.0001) / (ct_dwe + 0.0001))) AS w_dwe
     FROM x_source_target
     GROUP BY source_ctuid, target_ctuid
-    ORDER BY source_ctuid, target_ctuid
+    ORDER BY source_ctuid, target_ctuid)
+    
+    UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        ctuid AS target_ctuid,
+        '-1' AS source_ctuid,
+        -1 AS w_pop,
+        -1 AS w_dwe,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_2016_cbf_ct l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_2016_cbf_ct f)
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe
+    FROM x_diff_target WHERE ST_Area(geom::geography) > 1000000)
 );
+
+
