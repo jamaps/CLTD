@@ -169,7 +169,7 @@ CREATE TABLE x_source_target AS (
 
 DROP TABLE IF EXISTS x_ct_2011_2016;
 CREATE TABLE x_ct_2011_2016 AS (
-    (SELECT
+    ((SELECT
     source_ctuid,
     target_ctuid,
     SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_pop + 0.0001) / (ct_pop + 0.0001))) AS w_pop,
@@ -190,17 +190,55 @@ CREATE TABLE x_ct_2011_2016 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_2016_cbf_ct l 
+                FROM in_2011_cbf_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_2016_cbf_ct f)
+    FROM in_2016_cbf_ct f),
+    x_diff_target_area AS (
     SELECT
     source_ctuid,
     target_ctuid,
     w_pop,
+    w_dwe,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_pop,
     w_dwe
-    FROM x_diff_target WHERE ST_Area(geom::geography) > 1000000)
+    FROM x_diff_target_area WHERE area > 1000000))
+    
+    UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        '-1' AS target_ctuid,
+        ctuid AS source_ctuid,
+        0 AS w_pop,
+        0 AS w_dwe,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_2016_cbf_ct l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_2011_cbf_ct f),
+    x_diff_target_area AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe
+    FROM x_diff_target_area WHERE area > 1000000)
 );
-
-

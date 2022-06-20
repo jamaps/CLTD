@@ -30,6 +30,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			COUNT(*) AS source_count,
 			SUM(w_{weight}) AS sum_w_{weight}
 			FROM x_{crosswalk_table}
+			WHERE source_ctuid != '-1'	
 			GROUP BY source_ctuid
 			ORDER BY sum_w_{weight} DESC, source_ctuid),
 		sum_source_{weight}_join AS (SELECT 
@@ -45,7 +46,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			COUNT(*) AS target_count,
 			SUM(w_{weight}) AS sum_target_w_{weight},
 			MAX(w_{weight}) AS max_target_w_{weight}
-			FROM x_{crosswalk_table}
+			FROM x_{crosswalk_table} WHERE target_ctuid != '-1'
 			GROUP BY target_ctuid
 			ORDER BY target_ctuid),
 		x_ct_reduce AS (SELECT 
@@ -54,7 +55,16 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			ROUND(w_{weight}_1, 8) AS w_{weight}_1
 			FROM sum_source_{weight}_join LEFT JOIN sum_target
 			ON sum_source_{weight}_join.target_ctuid = sum_target.target_ctuid
-			WHERE source_count = 1 OR target_count = 1 OR w_{weight}_1 > 0.042 OR (sum_target.max_target_w_{weight} = w_{weight} AND w_{weight}_1 > 0.0001)),
+			WHERE 
+			source_count = 1 OR 
+			target_count = 1 OR 
+			sum_source_{weight}_join.target_ctuid = '-1' OR
+			sum_source_{weight}_join.source_ctuid = '-1' OR
+			w_{weight}_1 > 0.042 OR
+			sum_source_{weight}_join.target_ctuid IN (
+				SELECT target_ctuid FROM {crosswalk_table} WHERE source_ctuid = '-1'
+				AND target_ctuid NOT IN (SELECT target_ctuid FROM x_{crosswalk_table} WHERE source_ctuid = '-1')
+			)),
 		sum_source_{weight}_1 AS (SELECT 
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
@@ -89,7 +99,9 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		SELECT * FROM extra_target
 		UNION ALL
 		SELECT * FROM extra_source
-		);	
+		);
+
+		UPDATE x_{crosswalk_table}_1_{weight} SET w_{weight} = -1 WHERE source_ctuid = '-1'; 
 		"""
 
 		with connection.cursor() as cursor:
