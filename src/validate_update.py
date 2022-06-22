@@ -62,7 +62,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			sum_source_{weight}_join.source_ctuid = '-1' OR
 			w_{weight}_1 > 0.042 OR
 			sum_source_{weight}_join.target_ctuid IN (
-				SELECT target_ctuid FROM {crosswalk_table} WHERE source_ctuid = '-1'
+				SELECT target_ctuid FROM x_{crosswalk_table} WHERE source_ctuid = '-1'
 				AND target_ctuid NOT IN (SELECT target_ctuid FROM x_{crosswalk_table} WHERE source_ctuid = '-1')
 			)),
 		sum_source_{weight}_1 AS (SELECT 
@@ -180,6 +180,10 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		cursor.execute(f"SELECT COUNT(DISTINCT ctuid) FROM {target};")
 		result = cursor.fetchone();
 		print(result)
+
+
+update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2006_2021", "in_2006_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
 
 update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
 update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
