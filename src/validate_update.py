@@ -36,7 +36,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		sum_source_{weight}_join AS (SELECT 
 			x_{crosswalk_table}.*,
 			sum_source_{weight}.sum_w_{weight},
-			x_{crosswalk_table}.w_{weight} / (sum_source_{weight}.sum_w_{weight} + 0000000000000001) AS w_{weight}_1,
+			x_{crosswalk_table}.w_{weight} / (sum_source_{weight}.sum_w_{weight} + 0.000000000000001) AS w_{weight}_1,
 			sum_source_{weight}.source_count
 			FROM x_{crosswalk_table}
 			LEFT JOIN sum_source_{weight}
@@ -64,7 +64,9 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			sum_source_{weight}_join.target_ctuid IN (
 				SELECT target_ctuid FROM x_{crosswalk_table} WHERE source_ctuid = '-1'
 				AND target_ctuid NOT IN (SELECT target_ctuid FROM x_{crosswalk_table} WHERE source_ctuid = '-1')
-			)),
+			) OR
+			max_target_w_{weight} <= 0.042
+			),
 		sum_source_{weight}_1 AS (SELECT 
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
