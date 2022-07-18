@@ -8,13 +8,13 @@ DROP TABLE IF EXISTS pop_ct_1996;
 CREATE TABLE pop_ct_1996 AS (
 WITH source_ea_pop AS 
     (SELECT 
-    ea_pop::integer AS ea_pop,
-    cc_pri_dwe::integer AS ea_dwe,
+    coalesce(ea_pop::integer,0) AS ea_pop,
+    coalesce(cc_pri_dwe::integer,0) AS ea_dwe,
     eauid as eauid,
     cacode || ct_name as ctuid
     FROM in_1996_gaf_pt
     WHERE ct_name IS NOT NULL)
-SELECT 
+SELECT
 ctuid,
 sum(ea_pop) AS ct_pop,
 sum(ea_dwe) AS ct_dwe

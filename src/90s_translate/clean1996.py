@@ -1,6 +1,8 @@
 import pandas as pd
 import geopandas as gpd
+from shapely.geometry import Point
 from sqlalchemy import create_engine  
+import random
 
 db_connection_url = "postgresql://postgres:postgres@localhost:5432/census"
 con = create_engine(db_connection_url)  
@@ -29,8 +31,27 @@ dfd = dfd.merge(df.groupby(['ctuid'])['pop_count'].sum().reset_index(), how="lef
 # then remove the incomplete CTs 
 
 dfctea = dfd[(dfd["ct_pop"] > dfd["pop_count"]) | (dfd["pop_count"].isna())]["ctuid"].tolist()
-df = df[~df["ctuid"].isin(dfctea)])
+df = df[~df["ctuid"].isin(dfctea)]
 
+# select EAs that are still needed
+
+sql = """
+WITH ea_ct AS 
+    (SELECT 
+    eauid as eauid,
+    cacode || ct_name as ctuid,
+	coalesce(ea_pop::integer,0) AS ea_pop,
+    coalesce(cc_pri_dwe::integer,0) AS ea_dwe	
+    FROM in_1996_gaf_pt 
+    WHERE ct_name IS NOT NULL)
+SELECT 
+ea_ct.*, 
+in_1996_cbf_ea.geom
+FROM ea_ct
+LEFT JOIN in_1996_cbf_ea ON ea_ct.eauid = in_1996_cbf_ea.eauid;
+"""
+ea = gpd.read_postgis(sql, con)
+ea = ea[ea["ctuid"].isin(dfctea)]
 
 
 
