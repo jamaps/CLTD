@@ -5,14 +5,21 @@ in_file = "data/DLI_1996_Census_BF_Eng_Nat_bf/geoportal/DLI_1996_Census_BF_Eng_N
 
 df = gpd.read_file(in_file)
 
-tr = pd.read_file("translate_table.csv")
+tr = pd.read_csv("translate_table.csv", dtype={'cma': 'str'} )
 
 print(df.columns)
 
-df = df[["cmaca_code","ct_name","eauid","pop_count","dwe_count","long", "lat"]]
+df["ctuid"] = df["cmaca_code"] + df["ct_name"]
+
+df = df[["cmaca_code","ctuid","eauid","pop_count","dwe_count","long", "lat"]]
 
 df = df.dropna(subset = ["cmaca_code"]) 
 
+df['pop_count'] = df['pop_count'].astype(int)
+df['dwe_count'] = df['dwe_count'].astype(int)
+
 print(df)
 
-print(tf)
+dfs = df.groupby(['ctuid'])['pop_count'].sum().reset_index()
+
+print(dfs)
