@@ -87,6 +87,6 @@ eapts["pt_type"] = "ea_rand"
 
 df = pd.concat([df, eapts], axis=0)
 
-df.to_csv("data/pts_1996.csv")
+print(df.ctuid.nunique())
 
-# tr = pd.read_csv("translate_table.csv", dtype={'cma': 'str'} )
+df.to_csv("data/pts_1996.csv", index=False)
