@@ -2,11 +2,13 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 
-file_name = "data/pts_1996.csv"
+in_file_name = "data/pts_1996.csv"
 
-df = pd.read_csv(file_name, dtype={"cmaca_code":str,"ctuid":str})
+out_file_name ="data/pts_1996_fixed.geojson"
 
-dfs = df.loc[df["cmaca_code"] == "001"].copy()
+df = pd.read_csv(in_file_name, dtype={"cmaca_code":str,"ctuid":str})
+
+dfs = df
 
 tr = pd.read_csv("translate_table.csv", dtype={"cma":str})
 
@@ -14,8 +16,8 @@ def translate_point(xi, yi, cma):
 
 	trc = tr.loc[tr["cma"] == cma].copy()
 
-	trc["xd"] = trc["xi"] - trc["xg"]
-	trc["yd"] = trc["yi"] - trc["yg"]
+	trc["xd"] =  trc["xg"] - trc["xi"]
+	trc["yd"] =  trc["yg"] - trc["yi"]
 
 	trc["d"] = ((trc["xi"] - xi) ** 2 + (trc["yi"] - yi) ** 2) ** 0.5
 
@@ -33,13 +35,11 @@ def translate_point(xi, yi, cma):
 
 	return xg, yg
 
-g = translate_point(-52.79224, 47.6006, "001")
-
 dfs["coords"] = dfs.apply(lambda x: translate_point(x['long'], x['lat'], x["cmaca_code"]), axis=1)
 
 dfs['geometry'] = dfs.coords.apply(Point)
 dfs = gpd.GeoDataFrame(dfs,crs=4326)
 
-dfs = dfs[["cmaca_code","ctuid","eauid","pop_count","pt_type","geometry"]]
+dfs = dfs[["cmaca_code","ctuid","eauid","pop_count","dwe_count","pt_type","geometry"]]
 
-print(dfs)
+dfs.to_file(out_file_name, driver='GeoJSON')
