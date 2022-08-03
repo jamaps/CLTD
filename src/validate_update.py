@@ -52,7 +52,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		x_ct_reduce AS (SELECT 
 			sum_source_{weight}_join.source_ctuid,
 			sum_source_{weight}_join.target_ctuid,
-			ROUND(w_{weight}_1, 8) AS w_{weight}_1
+			ROUND(w_{weight}_1::numeric, 8) AS w_{weight}_1
 			FROM sum_source_{weight}_join LEFT JOIN sum_target
 			ON sum_source_{weight}_join.target_ctuid = sum_target.target_ctuid
 			WHERE 
@@ -191,7 +191,8 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		result = cursor.fetchone();
 		print(result)
 
-update_crosswalk("ct_1996_2001", "in_1996_dbf_ct", "in_2001_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved", "in_2001_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved", "in_2021_cbf_ct", ["pop", "dwe"])
 
 # update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"])
 # update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])

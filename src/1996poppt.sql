@@ -124,6 +124,9 @@ GROUP BY blocks_with_target.source_ctuid, blocks_with_target.target_ctuid
 ORDER BY blocks_with_target.source_ctuid, blocks_with_target.target_ctuid)
 );
 
+UPDATE x_ct_1996_2001
+SET target_ctuid = '5350009.00' WHERE source_ctuid = '5350009.00';
+
 
 -- join target to block face points, then group by to create weights
 DROP TABLE IF EXISTS x_ct_1996_2021;
