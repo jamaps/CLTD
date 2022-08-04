@@ -15,7 +15,7 @@ connection = psycopg2.connect(
 )
 connection.autocommit = True
 
-def update_crosswalk(crosswalk_table, source, target, weights):
+def update_crosswalk(crosswalk_table, source, target, weights, source_id, target_id):
 
 	for weight in weights:
 
@@ -90,12 +90,12 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 			ORDER BY ctuid),
 		extra_source AS (
 			SELECT 
-			ctuid AS source_ctuid,
+			{source_id} AS source_ctuid,
 			'-1' AS target_ctuid,
 			1 AS w_{weight}
 			FROM {source}
-			WHERE ctuid NOT IN (SELECT DISTINCT source_ctuid FROM x_ct_ready)
-			ORDER BY ctuid)
+			WHERE {source_id} NOT IN (SELECT DISTINCT source_ctuid FROM x_ct_ready)
+			ORDER BY {source_id})
 		SELECT * FROM x_ct_ready
 		UNION ALL
 		SELECT * FROM extra_target
@@ -179,7 +179,7 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		result = cursor.fetchone();
 		print(result)
 	with connection.cursor() as cursor:
-		cursor.execute(f"SELECT COUNT(DISTINCT ctuid) FROM {source};")
+		cursor.execute(f"SELECT COUNT(DISTINCT {source_id}) FROM {source};")
 		result = cursor.fetchone();
 		print(result)
 	with connection.cursor() as cursor:
@@ -191,8 +191,8 @@ def update_crosswalk(crosswalk_table, source, target, weights):
 		result = cursor.fetchone();
 		print(result)
 
-update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved", "in_2001_cbf_ct", ["pop", "dwe"])
-update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+# update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
 # update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"])
 # update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
