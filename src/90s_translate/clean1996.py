@@ -7,6 +7,7 @@ import random
 db_connection_url = "postgresql://postgres:postgres@localhost:5432/census"
 con = create_engine(db_connection_url)  
 
+
 # get ct pop from EA file in db
 
 sql = "SELECT * FROM pop_ct_1996"

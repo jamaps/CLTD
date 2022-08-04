@@ -1,23 +1,25 @@
 -- create spatial index on points
-DROP INDEX IF EXISTS in_1996_mypoints_all_geom_idx; 
-CREATE INDEX in_1996_mypoints_all_geom_idx ON in_1996_mypoints_all USING GIST (geom);
+DROP INDEX IF EXISTS in_1991_mypoints_all_geom_idx; 
+CREATE INDEX in_1991_mypoints_all_geom_idx ON in_1991_mypoints_all USING GIST (geom);
 
--- create CT population table
-DROP TABLE IF EXISTS pop_ct_1996;
-CREATE TABLE pop_ct_1996 AS (
+
+-- creat	e CT population table
+DROP TABLE IF EXISTS pop_ct_1991;
+CREATE TABLE pop_ct_1991 AS (
 WITH source_ea_pop AS 
     (SELECT 
     coalesce(ea_pop::integer,0) AS ea_pop,
-    coalesce(cc_pri_dwe::integer,0) AS ea_dwe,
-    eauid as eauid,
-    cacode || ct_name as ctuid
-    FROM in_1996_gaf_pt
-    WHERE ct_name IS NOT NULL)
+    coalesce(ea_pri_dwe::integer,0) AS ea_dwe,
+	RIGHT('00' || prov, 2) || RIGHT('000' || fed, 3) || RIGHT('000' || ea, 3) as eauid,
+    RIGHT('000' || cma_ca::varchar, 3) || RIGHT('000' || ROUND(ct_pct_nam::numeric, 2)::varchar, 7) as ctuid
+    FROM in_1991_gaf_pt
+    WHERE cma_ca != '0')
 SELECT
 ctuid,
 sum(ea_pop) AS ct_pop,
 sum(ea_dwe) AS ct_dwe
 FROM source_ea_pop 
+WHERE ctuid IN (SELECT ctuid FROM in_1991_cbf_ct_moved)
 GROUP BY ctuid
 ORDER BY ctuid
 );
@@ -57,7 +59,7 @@ x_diff_target AS (
 			ST_MakeValid(f.geom),
 			(
 				SELECT ST_Union(ST_MakeValid(l.geom))
-				FROM in_1996_cbf_ct_moved_clipped l 
+				FROM in_1996_cbf_ct_moved l 
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
@@ -72,7 +74,7 @@ x_diff_target_area AS (
 	FROM x_diff_target),
 x_diff_source AS (
 	SELECT 
-		geosid AS source_ctuid,
+		ctuid AS source_ctuid,
 		'-1' AS target_ctuid,
 		0 AS w_pop,
 		0 AS w_dwe,
@@ -84,7 +86,7 @@ x_diff_source AS (
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
-	FROM in_1996_cbf_ct_moved_clipped f),
+	FROM in_1996_cbf_ct_moved f),
 x_diff_source_area AS (
 	SELECT
 	source_ctuid,
@@ -162,7 +164,7 @@ x_diff_target AS (
 			ST_MakeValid(f.geom),
 			(
 				SELECT ST_Union(ST_MakeValid(l.geom))
-				FROM in_1996_cbf_ct_moved_clipped l 
+				FROM in_1996_cbf_ct_moved l 
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
@@ -177,7 +179,7 @@ x_diff_target_area AS (
 	FROM x_diff_target),
 x_diff_source AS (
 	SELECT 
-		geosid AS source_ctuid,
+		ctuid AS source_ctuid,
 		'-1' AS target_ctuid,
 		0 AS w_pop,
 		0 AS w_dwe,
@@ -189,7 +191,7 @@ x_diff_source AS (
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
-	FROM in_1996_cbf_ct_moved_clipped f),
+	FROM in_1996_cbf_ct_moved f),
 x_diff_source_area AS (
 	SELECT
 	source_ctuid,
