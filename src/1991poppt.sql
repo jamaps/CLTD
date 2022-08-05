@@ -26,8 +26,8 @@ ORDER BY ctuid
 
 
 -- join target to block face points, then group by to create weights
-DROP TABLE IF EXISTS x_ct_1996_2021;
-CREATE TABLE x_ct_1996_2021 AS (
+DROP TABLE IF EXISTS x_ct_1991_1996;
+CREATE TABLE x_ct_1991_1996 AS (
 WITH blocks_with_target AS (
 	SELECT 
 	in_1996_mypoints_all.ctuid AS source_ctuid,
