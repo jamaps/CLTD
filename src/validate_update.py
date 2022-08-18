@@ -191,7 +191,9 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		result = cursor.fetchone();
 		print(result)
 
-update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+
+# update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1991_2021", "in_1991_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
 # update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 # update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")

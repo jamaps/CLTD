@@ -159,19 +159,19 @@ ORDER BY blocks_with_target.source_ctuid, blocks_with_target.target_ctuid)
 
 
 -- join target to block face points, then group by to create weights
-DROP TABLE IF EXISTS x_ct_1996_2021;
-CREATE TABLE x_ct_1996_2021 AS (
+DROP TABLE IF EXISTS x_ct_1991_2021;
+CREATE TABLE x_ct_1991_2021 AS (
 WITH blocks_with_target AS (
 	SELECT 
-	in_1996_mypoints_all.ctuid AS source_ctuid,
+	in_1991_mypoints_all.ctuid AS source_ctuid,
 	in_2021_dbf_ct.ctuid AS target_ctuid,
-	in_1996_mypoints_all.pop_count + 0.001 AS bf_pop,
-	in_1996_mypoints_all.dwe_count + 0.001 AS bf_dwe
+	in_1991_mypoints_all.pop_count + 0.001 AS bf_pop,
+	in_1991_mypoints_all.dwe_count + 0.001 AS bf_dwe
 	FROM
-	in_1996_mypoints_all
+	in_1991_mypoints_all
 	LEFT JOIN 
-	in_2021_dbf_ct ON ST_Intersects(in_1996_mypoints_all.geom, in_2021_dbf_ct.geom)
-	WHERE in_1996_mypoints_all.geom && in_2021_dbf_ct.geom	
+	in_2021_dbf_ct ON ST_Intersects(in_1991_mypoints_all.geom, in_2021_dbf_ct.geom)
+	WHERE in_1991_mypoints_all.geom && in_2021_dbf_ct.geom	
 ),
 ct_sums AS (
 	SELECT 
@@ -192,7 +192,7 @@ x_diff_target AS (
 			ST_MakeValid(f.geom),
 			(
 				SELECT ST_Union(ST_MakeValid(l.geom))
-				FROM in_1996_cbf_ct_moved l 
+				FROM in_1991_cbf_ct_moved_clipped l 
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
@@ -206,8 +206,8 @@ x_diff_target_area AS (
 	ST_Area(geom::geography) AS area
 	FROM x_diff_target),
 x_diff_source AS (
-	SELECT 
-		ctuid AS source_ctuid,
+	SELECT
+		geosid AS source_ctuid,
 		'-1' AS target_ctuid,
 		0 AS w_pop,
 		0 AS w_dwe,
@@ -219,7 +219,7 @@ x_diff_source AS (
 				WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
 			)
 		) as geom
-	FROM in_1996_cbf_ct_moved f),
+	FROM in_1991_cbf_ct_moved_clipped f),
 x_diff_source_area AS (
 	SELECT
 	source_ctuid,
