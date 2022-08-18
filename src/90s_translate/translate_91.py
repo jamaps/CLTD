@@ -6,13 +6,11 @@ in_file_name = "data/pts_1991_fixing.csv"
 
 out_file_name ="data/pts_1991_fixed.geojson"
 
-df = pd.read_csv(in_file_name, dtype={"cmaca_code":str,"ctuid":str})
+df = pd.read_csv(in_file_name, dtype={"cmaca_code":str, "ctuid":str})
 
 dfs = df
 
-# df.loc[df['cmaca_code'] == '935']
-
-print(dfs)
+# dfs = df.loc[df['cmaca_code'] == '935']
 
 tr = pd.read_csv("translate_table.csv", dtype={"cma":str})
 

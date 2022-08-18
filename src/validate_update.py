@@ -67,7 +67,7 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 			) OR
 			max_target_w_{weight} <= 0.042
 			),
-		sum_source_{weight}_1 AS (SELECT 
+		sum_source_{weight}_1 AS (SELECT
 			source_ctuid,
 			SUM(w_{weight}_1) AS sum_w_{weight}
 			FROM x_ct_reduce
@@ -83,11 +83,11 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		extra_target AS (
 			SELECT 
 			'-1' AS source_ctuid,
-			ctuid AS target_ctuid,
+			{target_id} AS target_ctuid,
 			0 AS w_{weight}
 			FROM {target}
-			WHERE ctuid NOT IN (SELECT DISTINCT target_ctuid FROM x_ct_ready)
-			ORDER BY ctuid),
+			WHERE {target_id} NOT IN (SELECT DISTINCT target_ctuid FROM x_ct_ready)
+			ORDER BY {target_id}),
 		extra_source AS (
 			SELECT 
 			{source_id} AS source_ctuid,
@@ -187,12 +187,14 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		result = cursor.fetchone();
 		print(result)
 	with connection.cursor() as cursor:
-		cursor.execute(f"SELECT COUNT(DISTINCT ctuid) FROM {target};")
+		cursor.execute(f"SELECT COUNT(DISTINCT {target_id}) FROM {target};")
 		result = cursor.fetchone();
 		print(result)
 
+update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+
 # update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
-update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+# update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
 # update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"])
 # update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
