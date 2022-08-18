@@ -153,8 +153,6 @@ GROUP BY blocks_with_target.source_ctuid, blocks_with_target.target_ctuid
 ORDER BY blocks_with_target.source_ctuid, blocks_with_target.target_ctuid)
 );
 
--- UPDATE x_ct_1991_1996
--- SET target_ctuid = '5350009.00' WHERE source_ctuid = '5350009.00';
 
 
 
