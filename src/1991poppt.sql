@@ -1,6 +1,33 @@
+-- intial index creation and cleaning after inputting the point file
+
 -- create spatial index on points
 DROP INDEX IF EXISTS in_1991_mypoints_all_geom_idx; 
 CREATE INDEX in_1991_mypoints_all_geom_idx ON in_1991_mypoints_all USING GIST (geom);
+
+
+-- only 
+
+-- updating ST Johns
+UPDATE in_1991_mypoints_all
+SET ctuid = '00' || ctuid WHERE cmaca_code = '1';
+
+-- updating Alberta?
+UPDATE in_1991_mypoints_all
+SET ctuid = ctuid || '.00' WHERE LENGTH(ctuid) = 7;
+SELECT ctuid FROM in_1991_mypoints_all WHERE LENGTH(ctuid) = 7;
+
+UPDATE in_1991_mypoints_all
+SET ctuid = ctuid || '0' WHERE LENGTH(ctuid) = 9;
+SELECT ctuid FROM in_1991_mypoints_all WHERE LENGTH(ctuid) = 9;
+
+UPDATE in_1991_mypoints_all
+SET ctuid = ROUND(ctuid::numeric,2)::varchar WHERE LENGTH(ctuid) > 10;
+SELECT ctuid FROM in_1991_mypoints_all WHERE LENGTH(ctuid) > 10;
+
+-- remove X
+DELETE FROM in_1991_mypoints_all
+WHERE ctuid = 'x';
+
 
 
 -- create CT population table
