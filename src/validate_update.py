@@ -154,6 +154,16 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		UPDATE {crosswalk_table}
 		SET w_{weights[0]} = -1
 		WHERE w_{weights[1]} = -1 AND w_{weights[0]} = 0;
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = w_{weights[1]}
+		WHERE source_ctuid IN
+		(SELECT source_ctuid FROM {crosswalk_table} WHERE (w_{weights[0]} = 0 AND w_{weights[1]} > 0));
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[1]} = w_{weights[0]}
+		WHERE source_ctuid IN
+		(SELECT source_ctuid FROM {crosswalk_table} WHERE (w_{weights[0]} > 0 AND w_{weights[1]} = 0));
 		"""
 
 	elif len(weights) == 1:
@@ -192,19 +202,19 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		print(result)
 
 
-# update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
 update_crosswalk("ct_1991_2021", "in_1991_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
-# update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"])
-# update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"])
-# update_crosswalk("ct_2006_2021", "in_2006_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2006_2021", "in_2006_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"])
-# update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"])
+update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
