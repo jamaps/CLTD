@@ -38,6 +38,7 @@ ON x_source_ct_clipped_all
 USING GIST (geom);
 
 
+-- 1951 to 1956
 
 -- union source and target tracts
 
@@ -107,6 +108,99 @@ CREATE TABLE x_ct_1951_1956 AS (
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
                 FROM in_1956_ct l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_1951_ct f),
+    x_diff_target_area AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    w_area,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_area
+    FROM x_diff_target_area WHERE area > 1000000)
+);
+
+
+
+
+
+
+-- 1951 to 2021
+
+-- union source and target tracts
+
+DROP TABLE IF EXISTS x_source_target;
+CREATE TABLE x_source_target AS (
+    SELECT
+    x_source_ct_clipped_all.ctuid AS source_ctuid,
+    in_2021_dbf_ct.ctuid AS target_ctuid,
+	x_source_ct_clipped_all.ct_area AS source_area,
+    ST_Intersection(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_2021_dbf_ct.geom)) AS geom
+    FROM x_source_ct_clipped_all LEFT JOIN in_2021_dbf_ct
+    ON ST_Intersects(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_2021_dbf_ct.geom))
+    WHERE x_source_ct_clipped_all.geom && in_2021_dbf_ct.geom
+);
+
+
+-- create initial crosswalk
+
+DROP TABLE IF EXISTS x_ct_1951_2021;
+CREATE TABLE x_ct_1951_2021 AS (
+    ((SELECT
+    source_ctuid,
+    target_ctuid,
+    SUM((ST_AREA(x_source_target.geom::geography) + 1) / source_area) AS w_area
+    FROM x_source_target
+    GROUP BY source_ctuid, target_ctuid
+    ORDER BY source_ctuid, target_ctuid)
+	 
+	 UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        ctuid AS target_ctuid,
+        '-1' AS source_ctuid,
+        -1 AS w_area,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_1951_ct l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_2021_dbf_ct f),
+    x_diff_target_area AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+	w_area,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_area
+    FROM x_diff_target_area WHERE area > 1000000))
+    
+    UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        '-1' AS target_ctuid,
+        geosid AS source_ctuid,
+        0 AS w_area,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_2021_dbf_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
