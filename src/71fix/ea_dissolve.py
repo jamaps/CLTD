@@ -1,4 +1,3 @@
-
 import pandas as pd
 import geopandas as gpd
 from sqlalchemy import create_engine  
@@ -33,5 +32,7 @@ def ct_dissolve():
 
     cma.to_file("data/cma_71.geojson")
 
+
 # ea_dissolve()
+
 ct_dissolve()
