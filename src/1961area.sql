@@ -1,17 +1,17 @@
 -- intial index creation and cleaning after inputting the boundaries
-DROP INDEX IF EXISTS in_1956_ct_geom_idx; 
-CREATE INDEX in_1956_ct_geom_idx ON in_1956_ct USING GIST (geom);
+DROP INDEX IF EXISTS in_1961_ct_geom_idx; 
+CREATE INDEX in_1961_ct_geom_idx ON in_1961_ct USING GIST (geom);
 
 
 -- clip the source CT by the built up land layer, then union out any completly clipped away, also compute area
 DROP TABLE IF EXISTS x_source_ct_clipped;
 CREATE TABLE x_source_ct_clipped AS (
     SELECT
-    in_1956_ct.geosid AS ctuid,
-    ST_Union(ST_Intersection(ST_MakeValid(in_1956_ct.geom),ST_MakeValid(c.geom))) AS geom
-    FROM in_1956_ct LEFT JOIN (SELECT * FROM in_built_up_1971 WHERE code = 21) as c
-    ON ST_Intersects(ST_MakeValid(in_1956_ct.geom),ST_MakeValid(c.geom))
-    WHERE in_1956_ct.geom && c.geom
+    in_1961_ct.geosid AS ctuid,
+    ST_Union(ST_Intersection(ST_MakeValid(in_1961_ct.geom),ST_MakeValid(c.geom))) AS geom
+    FROM in_1961_ct LEFT JOIN (SELECT * FROM in_built_up_1971 WHERE code = 21) as c
+    ON ST_Intersects(ST_MakeValid(in_1961_ct.geom),ST_MakeValid(c.geom))
+    WHERE in_1961_ct.geom && c.geom
     GROUP BY ctuid
 );
 
@@ -24,11 +24,11 @@ CREATE TABLE x_source_ct_clipped_all AS (
 	FROM x_source_ct_clipped)
     UNION ALL
     (SELECT 
-	in_1956_ct.geosid AS ctuid,
-	ST_AREA(in_1956_ct.geom::geography)::bigint as ct_area,
-	in_1956_ct.geom AS geom
-	FROM in_1956_ct
-	WHERE in_1956_ct.geosid NOT IN (SELECT ctuid FROM x_source_ct_clipped)
+	in_1961_ct.geosid AS ctuid,
+	ST_AREA(in_1961_ct.geom::geography)::bigint as ct_area,
+	in_1961_ct.geom AS geom
+	FROM in_1961_ct
+	WHERE in_1961_ct.geosid NOT IN (SELECT ctuid FROM x_source_ct_clipped)
 	)
 );
 
@@ -38,7 +38,7 @@ ON x_source_ct_clipped_all
 USING GIST (geom);
 
 
--- 1956 to 1961
+-- 1961 to 1966
 
 -- union source and target tracts
 
@@ -46,19 +46,19 @@ DROP TABLE IF EXISTS x_source_target;
 CREATE TABLE x_source_target AS (
     SELECT
     x_source_ct_clipped_all.ctuid AS source_ctuid,
-    in_1961_ct.geosid AS target_ctuid,
+    in_1966_ct.geosid AS target_ctuid,
 	x_source_ct_clipped_all.ct_area AS source_area,
-    ST_Intersection(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_1961_ct.geom)) AS geom
-    FROM x_source_ct_clipped_all LEFT JOIN in_1961_ct
-    ON ST_Intersects(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_1961_ct.geom))
-    WHERE x_source_ct_clipped_all.geom && in_1961_ct.geom
+    ST_Intersection(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_1966_ct.geom)) AS geom
+    FROM x_source_ct_clipped_all LEFT JOIN in_1966_ct
+    ON ST_Intersects(ST_MakeValid(x_source_ct_clipped_all.geom),ST_MakeValid(in_1966_ct.geom))
+    WHERE x_source_ct_clipped_all.geom && in_1966_ct.geom
 );
 
 
 -- create initial crosswalk
 
-DROP TABLE IF EXISTS x_ct_1956_1961;
-CREATE TABLE x_ct_1956_1961 AS (
+DROP TABLE IF EXISTS x_ct_1961_1966;
+CREATE TABLE x_ct_1961_1966 AS (
     ((SELECT
     source_ctuid,
     target_ctuid,
@@ -78,11 +78,11 @@ CREATE TABLE x_ct_1956_1961 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1956_ct l 
+                FROM in_1961_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1961_ct f),
+    FROM in_1966_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
@@ -107,11 +107,11 @@ CREATE TABLE x_ct_1956_1961 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1961_ct l 
+                FROM in_1966_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1956_ct f),
+    FROM in_1961_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
@@ -131,7 +131,7 @@ CREATE TABLE x_ct_1956_1961 AS (
 
 
 
--- 1956 to 2021
+-- 1961 to 2021
 
 -- union source and target tracts
 
@@ -150,8 +150,8 @@ CREATE TABLE x_source_target AS (
 
 -- create initial crosswalk
 
-DROP TABLE IF EXISTS x_ct_1956_2021;
-CREATE TABLE x_ct_1956_2021 AS (
+DROP TABLE IF EXISTS x_ct_1961_2021;
+CREATE TABLE x_ct_1961_2021 AS (
     ((SELECT
     source_ctuid,
     target_ctuid,
@@ -171,7 +171,7 @@ CREATE TABLE x_ct_1956_2021 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1956_ct l 
+                FROM in_1961_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
@@ -204,7 +204,7 @@ CREATE TABLE x_ct_1956_2021 AS (
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1956_ct f),
+    FROM in_1961_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
