@@ -202,8 +202,11 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		print(result)
 
 
-update_crosswalk("ct_1961_1966", "in_1961_ct", "in_1966_ct", ["area"], "geosid", "geosid")
-update_crosswalk("ct_1961_2021", "in_1961_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+update_crosswalk("ct_1966_1971", "in_1966_ct", "in_1971_cbf_ct", ["area"], "geosid", "geosid")
+update_crosswalk("ct_1966_2021", "in_1966_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+
+# update_crosswalk("ct_1961_1966", "in_1961_ct", "in_1966_ct", ["area"], "geosid", "geosid")
+# update_crosswalk("ct_1961_2021", "in_1961_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
 
 # update_crosswalk("ct_1956_1961", "in_1956_ct", "in_1961_ct", ["area"], "geosid", "geosid")
 # update_crosswalk("ct_1956_2021", "in_1956_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
