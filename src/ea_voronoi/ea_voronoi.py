@@ -21,26 +21,13 @@ connection = psycopg2.connect(
 connection.autocommit = True
 
 
-if year == 1986:
 
-    # sql = """
-    #     SELECT 
-    #     CONCAT(CONCAT(prov,fed),ea) AS eauid,
-    #     ca_cma AS cma,
-    #     CONCAT(ca_cma,LPAD(LEFT(ct_name, -5),7,'000')) AS ctuid,
-    #     ea_pop AS ea_pop,
-    #     ea_pri_dwe AS ea_dwe,
-    #     geom AS geom
-    #     FROM in_1986_gaf_pt;
-    #     """
-    # dfea = gpd.read_postgis(sql, connection)
-
-    sql = """
-        SELECT 
-        geosid, geom
-        FROM in_1986_cbf_ct;
+sql = f"""
+    SELECT 
+    geosid, geom
+    FROM in_{str(year)}_cbf_ct;
     """
-    dfct = gpd.read_postgis(sql, connection)
+dfct = gpd.read_postgis(sql, connection)
 
 
 eas = []
@@ -51,148 +38,81 @@ dfct = dfct[dfct["geosid"] == '5350011.00']
 q = 0
 for index, row in dfct.iterrows():
 
-    ct = row["geosid"]
-    print(ct)
-    geom = row["geom"]
-
-    ea = dfea.loc[dfea["ctuid"] == ct].reset_index()
-
-    ea["x"] = ea.geom.x
-    ea["y"] = ea.geom.y
-
-    ea["ea_pop"] = ea["ea_pop"].astype(int)
-    ea["ea_dwe"] = ea["ea_dwe"].astype(int)
-
-    ea = ea.groupby(["ctuid","x","y"])["ea_pop","ea_dwe"].sum().reset_index()
     
 
-    if len(ea.index) > 2:
+    ct = str(row["geosid"])
+    print(ct)
+    geom = str(row["geosid"])
 
-        try:
+    sql = f"""
+        SELECT 
+        *
+        FROM in_{str(year)}_gaf_pt_min
+        WHERE ctuid = '{ct}';
+        """
+    dfea = gpd.read_postgis(sql, connection)
 
-            ea["geom"] = gpd.points_from_xy(ea["x"],ea["y"])
-
-            coords = points_to_coords(ea.geom)
-
-            poly_shapes, points = voronoi_regions_from_coords(coords, geom, per_geom = False)
-
-            print(points)
-
-            i = 0
-            polys = []
-            while i < len(poly_shapes):
-                j = points[i][0]
-                polys.append(poly_shapes[j])
-                i += 1 
-
-            ea["geometry"] = gpd.GeoSeries(polys)
-
-            del ea['geom']
-
-            eas.append(ea)
-
-        except:
-            ea["geom"] = gpd.points_from_xy(ea["x"],ea["y"])
-            ea["geometry"] = gpd.GeoSeries([geom])
-            del ea['geom']
-            eas.append(ea)
-
-    if len(ea.index) == 2:
+    if len(dfea.index) > 1:
 
         sql = f"""
-            SELECT 
-            *
-            FROM in_1986_gaf_pt 
-            WHERE ctuid = {ct};
-        """
+            WITH ct AS (SELECT ST_Transform(geom, 3857) AS geom FROM in_1986_cbf_ct WHERE geosid = '{ct}'), 
+            vor AS (
+                SELECT (ST_Dump(ST_VoronoiPolygons(
+                (SELECT 
+                ST_Collect(ST_Transform(geom,3857))
+                FROM in_1986_gaf_pt_min
+                WHERE ctuid = '{ct}'),
+                0,
+                (SELECT ST_Transform(geom,3857) FROM ct)
+                    ))).geom
+            ),
+            ea AS (
+                SELECT 
+                *
+                FROM in_1986_gaf_pt_min
+                WHERE ctuid = '{ct}'
+            ),
+            vor_join AS (
+                SELECT
+                coalesce(sum(ea.ea_pop::integer),0) AS pop,
+                coalesce(sum(ea.ea_dwe::integer),0) AS dwe,
+                ea.ctuid AS ctuid,
+                vor.geom
+                FROM vor  
+                    LEFT JOIN ea 
+                    ON ST_Intersects(ST_Transform(vor.geom,4269), ea.geom) 
+                GROUP BY vor.geom, ea.ctuid
+            )
+
+            SELECT ST_Intersection(vor_join.geom,ct.geom) AS geom FROM vor_join, ct;
+
+            """
+
         ea = gpd.read_postgis(sql, connection)
-        print(ea)
 
+        eas.append(ea)
 
-        # coords = points_to_coords(ea.geom)
-
-        # poly_shapes, points = voronoi_regions_from_coords(coords, geom, per_geom = False)
-
-        # print(points)
-
-        # i = 0
-        # polys = []
-        # while i < len(poly_shapes):
-        #     j = points[i][0]
-        #     polys.append(poly_shapes[j])
-        #     i += 1 
-
-        # ea["geometry"] = gpd.GeoSeries(polys)
-
-        # del ea['geom']
-
-        # eas.append(ea)
-
-        # ea["letter"] = pd.Series(["A","B"])
-
-        # ea0 = ea.copy()
-        # ea1 = ea.copy()
-        # ea2 = ea.copy()
-        # ea1["x"] = ea1["x"] + 0.0001
-        # ea1["y"] = ea1["y"] + 0.0001
-        # ea2["x"] = ea2["x"] - 0.0001
-        # ea2["y"] = ea2["y"] - 0.0001
-
-        # ea = pd.concat([ea1,ea2]).reset_index()
-        # del ea["index"]
-        # ea["ea_pop"] = ea["ea_pop"] / 2
-        # ea["ea_dwe"] = ea["ea_dwe"] / 2
-
-        # ea["geom"] = gpd.points_from_xy(ea["x"],ea["y"])
-
-        # ea = ea.sort_values(by = ["letter"], ascending = False).reset_index()
-
-        # del ea["index"]
-
-        # print(ea)
-
-
-        # coords = points_to_coords(ea.geom)
-     
-        # poly_shapes, points = voronoi_regions_from_coords(coords, geom, per_geom = False)
-
-        # print(poly_shapes)
-        # print(points)
-
-        # i = 0
-        # polys = []
-        # while i < len(poly_shapes):
-        #     j = points[i][0]
-        #     polys.append(poly_shapes[j])
-        #     i += 1 
-        # print(polys[0])
-        # ea["geometry"] = gpd.GeoSeries(polys)
-
-        # del ea['geom']
-
-        # ead = ea[["letter","geometry"]]
-
-        # ead = gpd.GeoDataFrame(ead).dissolve("letter")
-        # ea = pd.merge(ea0, ead, on="letter")
-
-        # eas.append(ea)
-
-        # except:
-        #     ea["geom"] = gpd.points_from_xy(ea["x"],ea["y"])
-        #     ea["geometry"] = gpd.GeoSeries([geom])
-        #     del ea['geom']
-        #     eas.append(ea)
-        
+        q += 1
 
     else:
 
-        ea["geom"] = gpd.points_from_xy(ea["x"],ea["y"])
-        ea["geometry"] = gpd.GeoSeries([geom])
-        del ea['geom']
+        print(dfea)
+
+        sql = f"""
+            SELECT 
+            ea_pop AS pop,
+            ea_dwe AS dwe,
+            ctuid AS ctuid,
+            (SELECT geom FROM in_1986_cbf_ct WHERE geosid = '{ct}') as geom
+            FROM in_{str(year)}_gaf_pt_min
+            WHERE ctuid = '{ct}'
+        """
+
+        ea = gpd.read_postgis(sql, connection)
+
         eas.append(ea)
+    
 
 eas = pd.concat(eas)
 
-print(eas)
-
-gpd.GeoDataFrame(eas).to_file("temp.geojson")
+gpd.GeoDataFrame(eas).to_file("in_1986_vor_ea.geojson")
