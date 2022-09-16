@@ -1,12 +1,10 @@
 import psycopg2
 from config import config as conf
 import geopandas as gpd
-from geovoronoi import voronoi_regions_from_coords, points_to_coords
 import pandas as pd
 
-year = 1986
+year = "1986"
 
-# connect to database
 connection = psycopg2.connect(
 	"""host='{host}' port='{port}' dbname='{dbname}'
 		user='{user}' password='{password}'
@@ -21,7 +19,6 @@ connection = psycopg2.connect(
 connection.autocommit = True
 
 
-
 sql = f"""
     SELECT 
     geosid, geom
@@ -30,15 +27,13 @@ sql = f"""
 dfct = gpd.read_postgis(sql, connection)
 
 
+# # subset for testing
+# dfct = dfct[dfct["geosid"] == '5350008.00']
+
+
 eas = []
 
-dfct = dfct[dfct["geosid"] == '5350011.00']
-
-
-q = 0
 for index, row in dfct.iterrows():
-
-    
 
     ct = str(row["geosid"])
     print(ct)
@@ -55,12 +50,12 @@ for index, row in dfct.iterrows():
     if len(dfea.index) > 1:
 
         sql = f"""
-            WITH ct AS (SELECT ST_Transform(geom, 3857) AS geom FROM in_1986_cbf_ct WHERE geosid = '{ct}'), 
+            WITH ct AS (SELECT ST_Transform(geom, 3857) AS geom FROM in_{year}_cbf_ct WHERE geosid = '{ct}'), 
             vor AS (
                 SELECT (ST_Dump(ST_VoronoiPolygons(
                 (SELECT 
                 ST_Collect(ST_Transform(geom,3857))
-                FROM in_1986_gaf_pt_min
+                FROM in_{year}_gaf_pt_min
                 WHERE ctuid = '{ct}'),
                 0,
                 (SELECT ST_Transform(geom,3857) FROM ct)
@@ -69,7 +64,7 @@ for index, row in dfct.iterrows():
             ea AS (
                 SELECT 
                 *
-                FROM in_1986_gaf_pt_min
+                FROM in_{year}_gaf_pt_min
                 WHERE ctuid = '{ct}'
             ),
             vor_join AS (
@@ -80,30 +75,31 @@ for index, row in dfct.iterrows():
                 vor.geom
                 FROM vor  
                     LEFT JOIN ea 
-                    ON ST_Intersects(ST_Transform(vor.geom,4269), ea.geom) 
+                    ON ST_Intersects(vor.geom, ST_Transform(ea.geom, 3857)) 
                 GROUP BY vor.geom, ea.ctuid
             )
-
-            SELECT ST_Intersection(vor_join.geom,ct.geom) AS geom FROM vor_join, ct;
-
+            SELECT
+            vor_join.pop,
+            vor_join.dwe,
+            vor_join.ctuid,
+            ST_Transform(ST_Intersection(vor_join.geom,ct.geom), 4269) AS geom
+            FROM vor_join, ct;
             """
 
         ea = gpd.read_postgis(sql, connection)
 
         eas.append(ea)
 
-        q += 1
+        None
 
     else:
-
-        print(dfea)
 
         sql = f"""
             SELECT 
             ea_pop AS pop,
             ea_dwe AS dwe,
             ctuid AS ctuid,
-            (SELECT geom FROM in_1986_cbf_ct WHERE geosid = '{ct}') as geom
+            (SELECT geom FROM in_{year}_cbf_ct WHERE geosid = '{ct}') as geom
             FROM in_{str(year)}_gaf_pt_min
             WHERE ctuid = '{ct}'
         """
@@ -111,8 +107,10 @@ for index, row in dfct.iterrows():
         ea = gpd.read_postgis(sql, connection)
 
         eas.append(ea)
-    
+
 
 eas = pd.concat(eas)
 
-gpd.GeoDataFrame(eas).to_file("in_1986_vor_ea.geojson")
+print(eas)
+
+gpd.GeoDataFrame(eas).to_file("in_" + year + "_vor_ea.geojson")
