@@ -209,3 +209,99 @@ CREATE TABLE x_ct_1986_2021 AS (
     w_dwe
     FROM x_diff_target_area WHERE area > 1000000)
 );
+
+
+
+-- join to the target tracts - this case to 1991
+DROP TABLE IF EXISTS x_source_target;
+CREATE TABLE x_source_target AS (
+    SELECT
+    x_source_blocks_clipped_ready.id AS source_dbuid,
+    x_source_blocks_clipped_ready.ctuid AS source_ctuid,
+    in_1991_cbf_ct_moved_clipped.geosid AS target_ctuid,
+    x_source_blocks_clipped_ready.db_pop,
+    x_source_blocks_clipped_ready.db_dwe,
+    x_source_blocks_clipped_ready.ct_pop + 0.001 AS ct_pop,
+    x_source_blocks_clipped_ready.ct_dwe + 0.001 AS ct_dwe,
+    x_source_blocks_clipped_ready.db_area + 0.001 AS db_area,
+    ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1991_cbf_ct_moved_clipped.geom)) AS geom
+    FROM x_source_blocks_clipped_ready LEFT JOIN in_1991_cbf_ct_moved_clipped
+    ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1991_cbf_ct_moved_clipped.geom))
+    WHERE x_source_blocks_clipped_ready.geom && in_1991_cbf_ct_moved_clipped.geom
+);
+
+DROP TABLE IF EXISTS x_ct_1986_1991;
+CREATE TABLE x_ct_1986_1991 AS (
+    ((SELECT
+    source_ctuid,
+    target_ctuid,
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_pop::bigint + 0.0001) / (ct_pop + 0.0001))) AS w_pop,
+    SUM(((ST_AREA(x_source_target.geom::geography)::bigint + 1) / (db_area + 1)) * ((db_dwe::bigint + 0.0001) / (ct_dwe + 0.0001))) AS w_dwe
+    FROM x_source_target
+    GROUP BY source_ctuid, target_ctuid
+    ORDER BY source_ctuid, target_ctuid)
+    
+    UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        geosid AS target_ctuid,
+        '-1' AS source_ctuid,
+        -1 AS w_pop,
+        -1 AS w_dwe,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_1986_cbf_ct l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_1991_cbf_ct_moved_clipped f),
+    x_diff_target_area AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe
+    FROM x_diff_target_area WHERE area > 1000000))
+    
+    UNION
+    
+    (WITH x_diff_target AS (
+    SELECT 
+        '-1' AS target_ctuid,
+        geosid AS source_ctuid,
+        0 AS w_pop,
+        0 AS w_dwe,
+            ST_Difference(
+            ST_MakeValid(f.geom),
+            (
+                SELECT ST_Union(ST_MakeValid(l.geom))
+                FROM in_1991_cbf_ct_moved_clipped l 
+                WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
+            )
+        ) as geom
+    FROM in_1986_cbf_ct f),
+    x_diff_target_area AS (
+    SELECT
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe,
+    ST_Area(geom::geography) AS area
+    FROM x_diff_target)
+    SELECT 
+    source_ctuid,
+    target_ctuid,
+    w_pop,
+    w_dwe
+    FROM x_diff_target_area WHERE area > 1000000)
+);
