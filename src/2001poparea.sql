@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS pop_ct_2001;
 CREATE TABLE pop_ct_2001 AS (
 WITH source_db_pop AS 
     (SELECT 
-    db_pop::integer AS db_pop,
-    cc_f_podwe::integer AS db_dwe,
+    coalesce(db_pop::integer,0) AS db_pop,
+    coalesce(cc_f_podwe::integer,0) AS db_dwe,
     cb_id as dbuid
     FROM in_2001_gaf_pt)
 SELECT
@@ -71,8 +71,8 @@ DROP TABLE IF EXISTS x_source_blocks_clipped_ready;
 CREATE TABLE x_source_blocks_clipped_ready AS (
 WITH db_pop AS 
     (SELECT 
-    db_pop::integer AS db_pop,
-    cc_f_podwe::integer AS db_dwe,
+    coalesce(db_pop::integer, 0) AS db_pop,
+    coalesce(cc_f_podwe::integer, 0) AS db_dwe,
     cb_id as dbuid
     FROM in_2001_gaf_pt),
 db_pop_ctuid AS 
