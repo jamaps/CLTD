@@ -222,7 +222,7 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 # update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 # update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+# update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 # update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
 # update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
@@ -231,4 +231,4 @@ update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dw
 # update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 # update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
