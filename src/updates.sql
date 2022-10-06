@@ -294,7 +294,6 @@ UPDATE ct_1986_2021 SET w_pop = 0.10000000 WHERE source_ctuid = '9350156.00' AND
 UPDATE ct_1986_2021 SET w_dwe = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1'
 
 
-
 SELECT 
 source_ctuid,
 SUM(w_dwe) AS s
@@ -302,5 +301,4 @@ FROM
 ct_1986_2021
 GROUP BY source_ctuid
 ORDER BY s ASC
-
 

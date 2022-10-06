@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS pop_ct_2016;
 CREATE TABLE pop_ct_2016 AS (
 WITH source_db_pop AS 
     (SELECT 
-    "DBpop2016/IDpop2016" as db_pop,
-    "DBtdwell2016/IDtlog2016" as db_dwe,
+    coalesce("DBpop2016/IDpop2016",0) as db_pop,
+    coalesce("DBtdwell2016/IDtlog2016",0) as db_dwe,
     "DBuid/IDidu"::varchar as dbuid
     FROM in_2016_gaf_pt)
 SELECT
@@ -70,8 +70,8 @@ DROP TABLE IF EXISTS x_source_blocks_clipped_ready;
 CREATE TABLE x_source_blocks_clipped_ready AS (
 WITH db_pop AS 
     (SELECT 
-    "DBpop2016/IDpop2016" as db_pop,
-    "DBtdwell2016/IDtlog2016" as db_dwe,
+    coalesce("DBpop2016/IDpop2016",0) as db_pop,
+    coalesce("DBtdwell2016/IDtlog2016",0) as db_dwe,
     "DBuid/IDidu"::varchar as dbuid
     FROM in_2016_gaf_pt),
 db_pop_ctuid AS 

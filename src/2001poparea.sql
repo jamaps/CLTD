@@ -214,6 +214,9 @@ CREATE TABLE x_ct_2001_2021 AS (
     FROM x_diff_target_area WHERE area > 1000000)
 );
 
+
+
+
     
 -- join to the target tracts - this case to 2006
 DROP TABLE IF EXISTS x_source_target;
