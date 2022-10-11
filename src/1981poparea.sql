@@ -236,8 +236,8 @@ CREATE TABLE x_source_target AS (
     WHERE x_source_blocks_clipped_ready.geom && in_1986_cbf_ct.geom
 );
 
-DROP TABLE IF EXISTS x_ct_1986_1991;
-CREATE TABLE x_ct_1986_1991 AS (
+DROP TABLE IF EXISTS x_ct_1981_1986;
+CREATE TABLE x_ct_1981_1986 AS (
     ((SELECT
     source_ctuid,
     target_ctuid,
