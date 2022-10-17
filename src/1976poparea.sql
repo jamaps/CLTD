@@ -17,13 +17,7 @@ CREATE TABLE in_1976_gaf_pt_min AS (
 	in_1976_cbf_ct ON ST_Intersects(in_1976_gaf_pt_adjust.geom, in_1976_cbf_ct.geom)
 	WHERE in_1976_gaf_pt_adjust.geom && in_1976_cbf_ct.geom
 );
-
-SELECT geosid FROM in_1976_cbf_ct WHERE geosid NOT IN (SELECT  ctuid FROM in_1976_gaf_pt_min);
-
--- 
-
-
-																   
+					   
 																   
 -- create CT population table
 DROP TABLE IF EXISTS pop_ct_1976;
