@@ -39,7 +39,7 @@ CREATE TABLE x_source_blocks AS (
     id, 
     ctuid,
     geom 
-    FROM in_1981_vor_ea
+    FROM in_1976_vor_ea
     ORDER BY ctuid);
 DROP INDEX IF EXISTS x_source_blocks_geom_idx;
 CREATE INDEX x_source_blocks_geom_idx
@@ -54,7 +54,7 @@ CREATE TABLE x_source_blocks_clipped AS (
     x_source_blocks.id,
     x_source_blocks.ctuid,
     ST_Union(ST_Intersection(ST_MakeValid(x_source_blocks.geom),ST_MakeValid(c.geom))) AS geom
-    FROM x_source_blocks LEFT JOIN (SELECT * FROM in_built_up_1991 WHERE code = 21) as c
+    FROM x_source_blocks LEFT JOIN (SELECT * FROM in_built_up_1971 WHERE code = 21) as c
     ON ST_Intersects(ST_MakeValid(x_source_blocks.geom),ST_MakeValid(c.geom))
     WHERE x_source_blocks.geom && c.geom
     GROUP BY x_source_blocks.ctuid, x_source_blocks.id
@@ -66,14 +66,14 @@ CREATE TABLE x_source_blocks_clipped_all AS (
     (SELECT * FROM x_source_blocks_clipped)
     UNION ALL
     (WITH J AS (SELECT 
-        in_1981_vor_ea.id,
+        in_1976_vor_ea.id,
         x_source_blocks_clipped.id AS clipped_db,
-        in_1981_vor_ea.ctuid,
-        in_1981_vor_ea.geom 
-        FROM in_1981_vor_ea
+        in_1976_vor_ea.ctuid,
+        in_1976_vor_ea.geom 
+        FROM in_1976_vor_ea
         LEFT JOIN x_source_blocks_clipped ON
-        in_1981_vor_ea.id = x_source_blocks_clipped.id
-        WHERE in_1981_vor_ea.ctuid IS NOT NULL)
+        in_1976_vor_ea.id = x_source_blocks_clipped.id
+        WHERE in_1976_vor_ea.ctuid IS NOT NULL)
     SELECT id, ctuid, geom FROM J WHERE clipped_db IS NULL)
 );
 
@@ -85,22 +85,22 @@ DROP TABLE IF EXISTS x_source_blocks_clipped_ready;
 CREATE TABLE x_source_blocks_clipped_ready AS (
 WITH db_pop_ctuid AS 
     (SELECT
-    in_1981_vor_ea.ctuid,
-    in_1981_vor_ea.id,
-    in_1981_vor_ea.pop AS db_pop,
-    in_1981_vor_ea.dwe AS db_dwe
-    FROM in_1981_vor_ea
-    WHERE in_1981_vor_ea.ctuid IS NOT NULL),
+    in_1976_vor_ea.ctuid,
+    in_1976_vor_ea.id,
+    in_1976_vor_ea.pop AS db_pop,
+    in_1976_vor_ea.dwe AS db_dwe
+    FROM in_1976_vor_ea
+    WHERE in_1976_vor_ea.ctuid IS NOT NULL),
 db_ct_op AS 
     (SELECT 
     db_pop_ctuid.ctuid,
     db_pop_ctuid.id,
     db_pop_ctuid.db_pop,
     db_pop_ctuid.db_dwe,
-    pop_ct_1981.ct_pop,
-    pop_ct_1981.ct_dwe
-    FROM db_pop_ctuid LEFT JOIN pop_ct_1981 
-    ON db_pop_ctuid.ctuid = pop_ct_1981.ctuid
+    pop_ct_1976.ct_pop,
+    pop_ct_1976.ct_dwe
+    FROM db_pop_ctuid LEFT JOIN pop_ct_1976 
+    ON db_pop_ctuid.ctuid = pop_ct_1976.ctuid
     ORDER BY ctuid)
 SELECT
 x_source_blocks_clipped_all.ctuid,
@@ -146,8 +146,8 @@ CREATE TABLE x_source_target AS (
     WHERE x_source_blocks_clipped_ready.geom && in_2021_dbf_ct.geom
 );
 
-DROP TABLE IF EXISTS x_ct_1981_2021;
-CREATE TABLE x_ct_1981_2021 AS (
+DROP TABLE IF EXISTS x_ct_1976_2021;
+CREATE TABLE x_ct_1976_2021 AS (
     ((SELECT
     source_ctuid,
     target_ctuid,
@@ -169,7 +169,7 @@ CREATE TABLE x_ct_1981_2021 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1981_cbf_ct l 
+                FROM in_1976_cbf_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
@@ -205,7 +205,7 @@ CREATE TABLE x_ct_1981_2021 AS (
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1981_cbf_ct f),
+    FROM in_1976_cbf_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
@@ -227,26 +227,26 @@ CREATE TABLE x_ct_1981_2021 AS (
 
 
 
--- join to the target tracts - this case to 1986
+-- join to the target tracts - this case to 1981
 DROP TABLE IF EXISTS x_source_target;
 CREATE TABLE x_source_target AS (
     SELECT
     x_source_blocks_clipped_ready.id AS source_dbuid,
     x_source_blocks_clipped_ready.ctuid AS source_ctuid,
-    in_1986_cbf_ct.geosid AS target_ctuid,
+    in_1981_cbf_ct.geosid AS target_ctuid,
     x_source_blocks_clipped_ready.db_pop,
     x_source_blocks_clipped_ready.db_dwe,
     x_source_blocks_clipped_ready.ct_pop + 0.001 AS ct_pop,
     x_source_blocks_clipped_ready.ct_dwe + 0.001 AS ct_dwe,
     x_source_blocks_clipped_ready.db_area + 0.001 AS db_area,
-    ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1986_cbf_ct.geom)) AS geom
-    FROM x_source_blocks_clipped_ready LEFT JOIN in_1986_cbf_ct
-    ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1986_cbf_ct.geom))
-    WHERE x_source_blocks_clipped_ready.geom && in_1986_cbf_ct.geom
+    ST_Intersection(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1981_cbf_ct.geom)) AS geom
+    FROM x_source_blocks_clipped_ready LEFT JOIN in_1981_cbf_ct
+    ON ST_Intersects(ST_MakeValid(x_source_blocks_clipped_ready.geom),ST_MakeValid(in_1981_cbf_ct.geom))
+    WHERE x_source_blocks_clipped_ready.geom && in_1981_cbf_ct.geom
 );
 
-DROP TABLE IF EXISTS x_ct_1981_1986;
-CREATE TABLE x_ct_1981_1986 AS (
+DROP TABLE IF EXISTS x_ct_1976_1981;
+CREATE TABLE x_ct_1976_1981 AS (
     ((SELECT
     source_ctuid,
     target_ctuid,
@@ -268,11 +268,11 @@ CREATE TABLE x_ct_1981_1986 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1981_cbf_ct l 
+                FROM in_1976_cbf_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1986_cbf_ct f),
+    FROM in_1981_cbf_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
@@ -300,11 +300,11 @@ CREATE TABLE x_ct_1981_1986 AS (
             ST_MakeValid(f.geom),
             (
                 SELECT ST_Union(ST_MakeValid(l.geom))
-                FROM in_1986_cbf_ct l 
+                FROM in_1981_cbf_ct l 
                 WHERE ST_Intersects(ST_MakeValid(l.geom),ST_MakeValid(l.geom))
             )
         ) as geom
-    FROM in_1981_cbf_ct f),
+    FROM in_1976_cbf_ct f),
     x_diff_target_area AS (
     SELECT
     source_ctuid,
