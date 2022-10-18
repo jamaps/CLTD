@@ -318,8 +318,10 @@ UPDATE ct_1981_1986 SET w_pop = 0.92312432 WHERE source_ctuid = '5590155.00' AND
 UPDATE ct_1981_1986 SET w_dwe = 0.92312432 WHERE source_ctuid = '5590155.00' AND target_ctuid = '5590155.00';
 
 
+-- 1976
 
 
+SELECT * FROM ct_1976_2021 ORDER BY source_ctuid, target_ctuid;
 
 
 SELECT 
