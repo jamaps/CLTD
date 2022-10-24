@@ -6,6 +6,21 @@ DROP INDEX IF EXISTS in_1971_ea_jct_geom_idx;
 CREATE INDEX in_1971_ea_jct_geom_idx ON in_1971_ea_jct USING GIST (geom);
 
 SELECT * FROM in_1971_gaf_pt WHERE ct IS NOT NULL;
+
+DROP TABLE IF EXISTS in_1971_ea_rand_pts;
+CREATE TABLE in_1971_ea_rand_pts AS
+(
+	SELECT 
+	 pop_71::double precision / 10 as pop, 
+	 dwl_71::double precision / 10 as dwe, 
+	 (ST_Dump(ST_GeneratePoints(geom, 10))).geom
+	FROM in_1971_ea_jct
+	
+);
+
+
+
+
 											   
 -- create CT population table
 DROP TABLE IF EXISTS pop_ct_1971;

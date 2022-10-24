@@ -1,5 +1,5 @@
 import geopandas as gpd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 import random
 import sys
 import psycopg2
@@ -31,7 +31,6 @@ def gen_dot(polygon, number):
             points.append([pnt.x,pnt.y])
     return points
 
-
 sql = f"""
     SELECT 
     ctuid71 as ctuid,
@@ -42,4 +41,14 @@ sql = f"""
     """
 df = gpd.read_postgis(sql, connection)
 
-print(df)
+
+print(df.dtypes)
+
+for i, row in df.iterrows():
+    dfg = df.iloc[i]
+    geometry = Polygon(dfg.geom)
+    print(type(geometry[0]))
+    dots = gen_dot(dfg.geom, 10)
+    break
+
+print(dots)
