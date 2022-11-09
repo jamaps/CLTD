@@ -320,6 +320,32 @@ UPDATE ct_1981_1986 SET w_dwe = 0.92312432 WHERE source_ctuid = '5590155.00' AND
 
 -- 1976
 
+SELECT * FROM ct_1976_2021 WHERE source_ctuid = '0010300.00';
+SELECT * FROM ct_1976_2021 WHERE source_ctuid = '0010301.00';
+SELECT * FROM ct_1976_2021 WHERE source_ctuid = '0010302.00';
+INSERT INTO ct_1976_2021 VALUES ('0010301.00', '0010017.00', 0.00000000, 0.00000000);
+INSERT INTO ct_1976_2021 VALUES ('0010302.00', '0010017.00', 0.00000000, 0.00000000);
+
+
+-- 1971
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '4210610.00';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.95312432 WHERE source_ctuid = '4210610.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.95312432 WHERE source_ctuid = '4210610.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 0.95312432 WHERE source_ctuid = '4210610.00' AND target_ctuid = '4210610.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.95312432 WHERE source_ctuid = '4210610.00' AND target_ctuid = '4210610.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '4420300.00';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.8167331 WHERE source_ctuid = '4420300.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.8167331 WHERE source_ctuid = '4420300.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 0.8167331 WHERE source_ctuid = '4420300.00' AND target_ctuid = '4420210.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.8167331 WHERE source_ctuid = '4420300.00' AND target_ctuid = '4420210.00';
+
+-- montreal
+
+
+
+
 
 SELECT * FROM ct_1976_2021 ORDER BY source_ctuid, target_ctuid;
 
@@ -328,7 +354,7 @@ SELECT
 source_ctuid,
 SUM(w_dwe) AS s
 FROM
-ct_1986_2021
+ct_1976_1981
 GROUP BY source_ctuid
 ORDER BY s ASC
 
