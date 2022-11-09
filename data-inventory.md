@@ -46,7 +46,7 @@
 1971
 - CT (CBF)
 - EA (CBF)
-- Area cut file ?
+- Area cut file
 
 1966 
 - CT (CBF)
