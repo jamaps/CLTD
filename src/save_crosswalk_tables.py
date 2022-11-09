@@ -16,14 +16,12 @@ connection = psycopg2.connect(
 )
 connection.autocommit = True
 
-years = ["2022"]
-
 def save_crosswalk(table_name):
 
     sql = f"""
         SELECT *
         FROM {table_name}
-        """
+    """
 
     df = pd.read_sql(sql, connection)
 
@@ -33,6 +31,20 @@ def save_crosswalk(table_name):
 
     df = pd.concat([df1,df2])
 
-    df.to_csv("crosswalk_tables/" + table_name + ".csv", index=False, quotechar = '"')
+    df.to_csv("crosswalk_tables/" + table_name + ".csv", index=False)
     
-save_crosswalk("ct_1996_2021")
+
+for table in [
+    "ct_1996_2001",
+    "ct_1996_2021",
+    "ct_2001_2006",
+    "ct_2001_2021",
+    "ct_2006_2011",
+    "ct_2006_2021",
+    "ct_2011_2016",
+    "ct_2011_2021",
+    "ct_2016_2021"
+    ]:
+    
+    save_crosswalk(table)
+
