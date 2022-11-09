@@ -28,7 +28,7 @@ dfct = gpd.read_postgis(sql, connection)
 
 
 # # subset for testing
-# dfct = dfct[dfct["geosid"] == '5350002.00']
+# dfct = dfct[dfct["geosid"] == '5350194.00']
 
 
 eas = []
