@@ -389,12 +389,33 @@ SELECT * FROM ct_1971_1976 WHERE source_ctuid = '4620778.00';
 UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '4620778.00' AND target_ctuid = '-1';
 UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '4620778.00' AND target_ctuid = '-1';
 
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5050700.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5050700.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5050700.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5050710.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5050710.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5050710.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5050720.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5050720.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5050720.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5050200.00';
+UPDATE ct_1971_1976 SET w_pop = 0.00413595 WHERE source_ctuid = '5050200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 0.00469293 WHERE source_ctuid = '5050200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.00413595 WHERE source_ctuid = '5050200.00' AND target_ctuid = '5050160.00';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.00469293 WHERE source_ctuid = '5050200.00' AND target_ctuid = '5050160.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350225.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350225.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350225.00' AND target_ctuid = '-1';
 
 
 
 
-
-SELECT * FROM ct_1976_2021 ORDER BY source_ctuid, target_ctuid;
+SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5370106.00' ORDER BY source_ctuid, target_ctuid 
+SELECT * FROM ct_1966_1971 WHERE target_ctuid = '5350225.00' ORDER BY source_ctuid, target_ctuid 
 
 
 SELECT 
