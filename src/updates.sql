@@ -407,22 +407,118 @@ UPDATE ct_1971_1976 SET w_dwe = 0.00469293 WHERE source_ctuid = '5050200.00' AND
 UPDATE ct_1971_1976 SET w_pop = 1 - 0.00413595 WHERE source_ctuid = '5050200.00' AND target_ctuid = '5050160.00';
 UPDATE ct_1971_1976 SET w_dwe = 1 - 0.00469293 WHERE source_ctuid = '5050200.00' AND target_ctuid = '5050160.00';
 
-SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350225.00';
-UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350225.00' AND target_ctuid = '-1';
-UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350225.00' AND target_ctuid = '-1';
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5370225.00';
+SELECT * FROM ct_1971_2021 WHERE source_ctuid = '5370225.00';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.53504724 WHERE source_ctuid = '5370225.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.54131565 WHERE source_ctuid = '5370225.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 0.53504724 WHERE source_ctuid = '5370225.00' AND target_ctuid = '5370224.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.54131565 WHERE source_ctuid = '5370225.00' AND target_ctuid = '5370224.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5370224.00';
+SELECT * FROM ct_1971_2021 WHERE source_ctuid = '5370224.00';
+UPDATE ct_1971_1976 SET w_pop = 0.04615634 WHERE source_ctuid = '5370224.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 0.04787656 WHERE source_ctuid = '5370224.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.04615634 WHERE source_ctuid = '5370224.00' AND target_ctuid = '5370224.00';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.04787656 WHERE source_ctuid = '5370224.00' AND target_ctuid = '5370224.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350620.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350620.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350620.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350621.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350621.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350621.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350630.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350630.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350630.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350640.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350640.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350640.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350650.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5350650.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5350650.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5350615.00';
+SELECT * FROM ct_1971_2021 WHERE source_ctuid = '5350615.00';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.27035039 - 0.06234234 WHERE source_ctuid = '5350615.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.26784990 - 0.06123432 WHERE source_ctuid = '5350615.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 0.27035039 WHERE source_ctuid = '5350615.00' AND target_ctuid = '5350615.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.26784990 WHERE source_ctuid = '5350615.00' AND target_ctuid = '5350615.00';
+UPDATE ct_1971_1976 SET w_pop = 0.06234234 WHERE source_ctuid = '5350615.00' AND target_ctuid = '5350516.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.06123432 WHERE source_ctuid = '5350615.00' AND target_ctuid = '5350516.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5390330.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5390330.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5390330.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5550200.00';
+UPDATE ct_1971_1976 SET w_pop = 0.94615634 WHERE source_ctuid = '5550200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 0.94787656 WHERE source_ctuid = '5550200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 1 - 0.94615634 WHERE source_ctuid = '5550200.00' AND target_ctuid = '5550230.00';
+UPDATE ct_1971_1976 SET w_dwe = 1 - 0.94787656 WHERE source_ctuid = '5550200.00' AND target_ctuid = '5550230.00';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5550210.00';
+UPDATE ct_1971_1976 SET w_pop = 0.83298321 WHERE source_ctuid = '5550210.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 0.83132342 WHERE source_ctuid = '5550210.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_pop = 0.00000001 WHERE source_ctuid = '5550210.00' AND target_ctuid = '5550230.00';
+UPDATE ct_1971_1976 SET w_dwe = 0.00000001 WHERE source_ctuid = '5550210.00' AND target_ctuid = '5550230.00';
+INSERT INTO ct_1971_1976 VALUES ('5550210.00', '5550110.00', 1 - 0.83298320, 1 - 0.83132341);
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5550220.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5550220.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5550220.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5590180.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5590180.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5590180.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5590190.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5590190.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5590190.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5590200.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5590200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5590200.00' AND target_ctuid = '-1';
+
+SELECT * FROM ct_1971_1976 WHERE source_ctuid = '5800200.00';
+UPDATE ct_1971_1976 SET w_pop = 1 WHERE source_ctuid = '5800200.00' AND target_ctuid = '-1';
+UPDATE ct_1971_1976 SET w_dwe = 1 WHERE source_ctuid = '5800200.00' AND target_ctuid = '-1';
+
+
+
+-- 1966
+
+SELECT * FROM ct_1966_1971 WHERE source_ctuid = '8350072.00';
+UPDATE ct_1966_1971 SET w_area = 1 - 0.05893950 - 0.04106050 WHERE source_ctuid = '8350072.00' AND target_ctuid = '-1';
+UPDATE ct_1966_1971 SET w_area = 0.05893950 WHERE source_ctuid = '8350072.00' AND target_ctuid = '8350006.00';
+UPDATE ct_1966_1971 SET w_area = 0.04106050 WHERE source_ctuid = '8350072.00' AND target_ctuid = '8350140.00';
+
+SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5370118.00';
+UPDATE ct_1966_1971 SET w_area = 1 - 0.00000005 WHERE source_ctuid = '5370118.00' AND target_ctuid = '-1';
+UPDATE ct_1966_1971 SET w_area = 0.00000005 WHERE source_ctuid = '5370118.00' AND target_ctuid = '5370140.00';
+
+SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5320060.00';
+UPDATE ct_1966_1971 SET w_area = 1 - 0.00000012 WHERE source_ctuid = '5320060.00' AND target_ctuid = '-1';
+UPDATE ct_1966_1971 SET w_area = 0.00000006 WHERE source_ctuid = '5320060.00' AND target_ctuid = '5320110.00';
+UPDATE ct_1966_1971 SET w_area = 0.00000006 WHERE source_ctuid = '5320060.00' AND target_ctuid = '5320008.00';
+
+
 
 
 
 
 SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5370106.00' ORDER BY source_ctuid, target_ctuid 
-SELECT * FROM ct_1966_1971 WHERE target_ctuid = '5350225.00' ORDER BY source_ctuid, target_ctuid 
+SELECT * FROM ct_1971_2021 WHERE target_ctuid = '5350626.00' ORDER BY source_ctuid, target_ctuid 
 
 
 SELECT 
 source_ctuid,
-SUM(w_dwe) AS s
+SUM(w_area) AS s
 FROM
-ct_1976_1981
+ct_1966_1971
 GROUP BY source_ctuid
 ORDER BY s ASC
 
