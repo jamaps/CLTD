@@ -249,19 +249,19 @@ SELECT * FROM ct_1986_2021 WHERE source_ctuid = '8350157.00';
 UPDATE ct_1986_2021 SET w_pop = 0.52424242 WHERE source_ctuid = '8350157.00' AND target_ctuid = '8350157.00';
 UPDATE ct_1986_2021 SET w_dwe = 0.52424242 WHERE source_ctuid = '8350157.00' AND target_ctuid = '8350157.00';
 UPDATE ct_1986_2021 SET w_pop = 1 - 0.52424242 WHERE source_ctuid = '8350157.00' AND target_ctuid = '-1';
-UPDATE ct_1986_2021 SET w_dwe = 1 - 0.52424242 WHERE source_ctuid = '8350157.00' AND target_ctuid = '-1'
+UPDATE ct_1986_2021 SET w_dwe = 1 - 0.52424242 WHERE source_ctuid = '8350157.00' AND target_ctuid = '-1';
 
 SELECT * FROM ct_1986_1991 WHERE source_ctuid = '8350166.00';
 UPDATE ct_1986_1991 SET w_pop = 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '8350166.00';
 UPDATE ct_1986_1991 SET w_dwe = 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '8350166.00';
 UPDATE ct_1986_1991 SET w_pop = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1';
-UPDATE ct_1986_1991 SET w_dwe = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1'
+UPDATE ct_1986_1991 SET w_dwe = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1';
 
 SELECT * FROM ct_1986_2021 WHERE source_ctuid = '8350166.00';
 UPDATE ct_1986_2021 SET w_pop = 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '8350166.02';
 UPDATE ct_1986_2021 SET w_dwe = 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '8350166.02';
 UPDATE ct_1986_2021 SET w_pop = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1';
-UPDATE ct_1986_2021 SET w_dwe = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1'
+UPDATE ct_1986_2021 SET w_dwe = 1 - 0.62424242 WHERE source_ctuid = '8350166.00' AND target_ctuid = '-1';
 
 SELECT * FROM ct_1986_1991 WHERE source_ctuid = '8350167.00';
 UPDATE ct_1986_1991 SET w_pop = 1 WHERE source_ctuid = '8350167.00' AND target_ctuid = '-1';
@@ -277,7 +277,7 @@ UPDATE ct_1986_1991 SET w_dwe = 0.29982419 - 0.05 WHERE source_ctuid = '9350156.
 UPDATE ct_1986_1991 SET w_pop = 0.72920041 - 0.05 WHERE source_ctuid = '9350156.00' AND target_ctuid = '9350156.02';
 UPDATE ct_1986_1991 SET w_dwe = 0.70017581 - 0.05 WHERE source_ctuid = '9350156.00' AND target_ctuid = '9350156.02';
 UPDATE ct_1986_1991 SET w_pop = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1';
-UPDATE ct_1986_1991 SET w_dwe = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1'
+UPDATE ct_1986_1991 SET w_dwe = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1';
 
 SELECT * FROM ct_1986_2021 WHERE source_ctuid = '9350156.00';
 UPDATE ct_1986_2021 SET w_pop = 0.17391251 - 0.00 WHERE source_ctuid = '9350156.00' AND target_ctuid = '9350156.01';
@@ -291,7 +291,7 @@ UPDATE ct_1986_2021 SET w_dwe = 0.31805569 - 0.04 WHERE source_ctuid = '9350156.
 UPDATE ct_1986_2021 SET w_pop = 0.23999260 - 0.03 WHERE source_ctuid = '9350156.00' AND target_ctuid = '9350156.08';
 UPDATE ct_1986_2021 SET w_dwe = 0.22400256 - 0.03 WHERE source_ctuid = '9350156.00' AND target_ctuid = '9350156.08';
 UPDATE ct_1986_2021 SET w_pop = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1';
-UPDATE ct_1986_2021 SET w_dwe = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1'
+UPDATE ct_1986_2021 SET w_dwe = 0.10000000 WHERE source_ctuid = '9350156.00' AND target_ctuid = '-1';
 
 
 
@@ -302,7 +302,7 @@ SELECT * FROM ct_1981_1986 WHERE source_ctuid = '0010303.00';
 UPDATE ct_1981_2021 SET w_pop = 0.99999999 - 0.12424242 WHERE source_ctuid = '0010303.00' AND target_ctuid = '0010110.00';
 UPDATE ct_1981_2021 SET w_dwe = 0.99999999 - 0.12424242 WHERE source_ctuid = '0010303.00' AND target_ctuid = '0010110.00';
 UPDATE ct_1981_2021 SET w_pop = 0.12424242 WHERE source_ctuid = '0010303.00' AND target_ctuid = '-1';
-UPDATE ct_1981_2021 SET w_dwe = 0.12424242 WHERE source_ctuid = '0010303.00' AND target_ctuid = '-1'
+UPDATE ct_1981_2021 SET w_dwe = 0.12424242 WHERE source_ctuid = '0010303.00' AND target_ctuid = '-1';
 
 SELECT * FROM ct_1981_2021 WHERE source_ctuid = '5500100.00';
 UPDATE ct_1981_2021 SET w_pop = 0.1 WHERE source_ctuid = '5500100.00' AND target_ctuid = '-1';
@@ -507,18 +507,24 @@ UPDATE ct_1966_1971 SET w_area = 0.00000006 WHERE source_ctuid = '5320060.00' AN
 
 
 
+-- 1961
 
 
+-- 1956
 
-SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5370106.00' ORDER BY source_ctuid, target_ctuid 
-SELECT * FROM ct_1971_2021 WHERE target_ctuid = '5350626.00' ORDER BY source_ctuid, target_ctuid 
+
+-- 1951
+
+
+SELECT * FROM ct_1966_1971 WHERE source_ctuid = '5370106.00' ORDER BY source_ctuid, target_ctuid;
+SELECT * FROM ct_1971_2021 WHERE target_ctuid = '5350626.00' ORDER BY source_ctuid, target_ctuid;
 
 
 SELECT 
 source_ctuid,
 SUM(w_area) AS s
 FROM
-ct_1966_1971
+ct_1956_1961
 GROUP BY source_ctuid
-ORDER BY s ASC
+ORDER BY s ASC;
 
