@@ -1,15 +1,17 @@
 
-**Currently being updated to include data from 2021 and prior to 1971**
-
----
-
 # Canadian Longitudinal Tract Database (CLTD)
 
-This repository includes code to bridge Canadian historical census tract data (1971-2016) to a common set of geographic boundaries (2016).
+This repository includes code to bridge Canadian historical census tract data (every five years from 1951 to 2021) to a common set of geographic boundaries (2021).
 
-The data and a manual describing its use is available on Dataverse: http://dx.doi.org/10.5683/SP/EUG3DT
+Census tracts are geographic boundaries delineated by Statistics Canada used for publishing aggregate census data. They are analogous to neighbourhoods and typically pertain to 4,000 to 7,000 residents. 
 
-A paper detailing this work has recently been published in The Canadian Geographer
+Each census year, Statistics Canada re-draws (and often adds new) boundaries to account for shifting and growing populations. 
+
+This makes it difficult to examine how the demographics of neighbourhoods have changed over time (i.e. cannot always compare on a one-to-one basis). 
+
+As such, the goal of this project was to use areal interpolation methods to create a series of concordance tables indicating how boundaries from older years are spatially related to newer years. Specifically, these tables include a set of weights that indicate how to apportion data from a tract boundary in one year to boundaries in another year. 
+
+Our work began in 2016, with the creation of concordance tables from 1971 to 2016. The data and a manual describing this original work is available on Dataverse: http://dx.doi.org/10.5683/SP/EUG3DT. A paper detailing the methods was published in The Canadian Geographer.
 
 ```
 @article{allentaylor2018,
@@ -22,16 +24,18 @@ A paper detailing this work has recently been published in The Canadian Geograph
 }
 ```
 
+We have since updated this to include recently digitized historical tract boundaries for 1951, 1956, 1961, and 1966 - as well as linked all tracts to 2021 tracts.
 
-### older_work/apportionment_scripts
 
-Example scripts that use these tables to apportion data linked to census tracts from a source year to a target year (e.g. from 1971 to 2016)
+### crosswalk_tables
 
-### older_work/src
+A set of concordance tables (.csv) which link boundary identifiers between years using a set of apportionment weights. 
 
-Contains the code used to generate and validate the crosswalk tables. This utilizes a combination of population weighting, area weighting, and dasymetric mapping approaches to minimize error when boundaries change over time.
+### examples
 
-### older_work/crosswalk_tables
+Example scripts that use these tables to apportion data linked to census tracts from a source year to a target year (e.g. from 1951 to 2021)
 
-A set of .csv tables which link boundary identifiers between years using a set of apportionment weights. Data is organized into four fields, the first is the ID of the source census tract, the second is the ID of the target census tract, the third is a weight indicating the amount of data that should be apportioned from the source to the target, and the forth is a flag indicating the relationship (1 = no change, 2 = merge, 3 = split, or 4 = many-to-many)
+### src
+
+Contains the code used to generate and validate the crosswalk tables. This utilizes a combination of population weighting, area weighting, and dasymetric mapping approaches to minimize error when boundaries change over time. Most of this was conducted in PostGIS, some Python too.
 
