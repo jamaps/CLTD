@@ -1,5 +1,6 @@
-/src/__pycache__
-/src/90s_translate/data
-/src/71fix/data
-/src/86fix/data
-/src/ea_voronoi/__pycache__
+src/__pycache__
+src/1976_voronoi/data
+src/1986_voronoi/data
+src/1971_ctcreate_and_voronoi/data
+src/1981_varfixing_and_voronoi/data
+src/1991_1996_clean_and_translate/data
