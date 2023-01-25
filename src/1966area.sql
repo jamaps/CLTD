@@ -131,6 +131,16 @@ CREATE TABLE x_ct_1966_1971 AS (
     target_ctuid,
     w_area
     FROM x_diff_target_area WHERE area > 1000000)
+	
+	UNION 
+	
+	SELECT 
+	in_1966_ct.geosid AS source_ctuid,
+	in_1971_cbf_ct.geosid AS target_ctuid,
+	0.0001 AS w_area
+	FROM in_1966_ct LEFT JOIN in_1971_cbf_ct
+	ON ST_Intersects(ST_MakeValid(in_1966_ct.geom),ST_MakeValid(in_1971_cbf_ct.geom))
+	WHERE in_1966_ct.geom && in_1971_cbf_ct.geom
 );
 
 
@@ -167,7 +177,7 @@ CREATE TABLE x_ct_1966_2021 AS (
     GROUP BY source_ctuid, target_ctuid
     ORDER BY source_ctuid, target_ctuid)
 	 
-	 UNION
+	UNION
     
     (WITH x_diff_target AS (
     SELECT 
@@ -224,5 +234,15 @@ CREATE TABLE x_ct_1966_2021 AS (
     target_ctuid,
     w_area
     FROM x_diff_target_area WHERE area > 1000000)
+	
+	UNION 
+	
+	SELECT 
+	in_1966_ct.geosid AS source_ctuid,
+	in_2021_dbf_ct.ctuid AS target_ctuid,
+	0.0001 AS w_area
+	FROM in_1966_ct LEFT JOIN in_2021_dbf_ct
+	ON ST_Intersects(ST_MakeValid(in_1966_ct.geom),ST_MakeValid(in_2021_dbf_ct.geom))
+	WHERE in_1966_ct.geom && in_2021_dbf_ct.geom
 );
 	 
