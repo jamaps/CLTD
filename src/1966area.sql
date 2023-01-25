@@ -244,5 +244,7 @@ CREATE TABLE x_ct_1966_2021 AS (
 	FROM in_1966_ct LEFT JOIN in_2021_dbf_ct
 	ON ST_Intersects(ST_MakeValid(in_1966_ct.geom),ST_MakeValid(in_2021_dbf_ct.geom))
 	WHERE in_1966_ct.geom && in_2021_dbf_ct.geom
+	AND CONCAT(in_1966_ct.geosid, in_2021_dbf_ct.ctuid) NOT IN (SELECT CONCAT(source_ctuid, target_ctuid) FROM x_source_target)
+	ORDER BY in_1966_ct.geosid
 );
 	 
