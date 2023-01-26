@@ -52,7 +52,7 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		x_ct_reduce AS (SELECT 
 			sum_source_{weight}_join.source_ctuid,
 			sum_source_{weight}_join.target_ctuid,
-			ROUND(w_{weight}_1::numeric, 8) AS w_{weight}_1
+			ROUND(w_{weight}_1::numeric, 10) AS w_{weight}_1
 			FROM sum_source_{weight}_join LEFT JOIN sum_target
 			ON sum_source_{weight}_join.target_ctuid = sum_target.target_ctuid
 			WHERE 
@@ -76,7 +76,7 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 		x_ct_ready AS (SELECT 
 			x_ct_reduce.source_ctuid,
 			x_ct_reduce.target_ctuid,
-			ROUND(x_ct_reduce.w_{weight}_1 / (sum_source_{weight}_1.sum_w_{weight} + 0.0000000000000001), 8) AS w_{weight}
+			ROUND(x_ct_reduce.w_{weight}_1 / (sum_source_{weight}_1.sum_w_{weight} + 0.0000000000000001), 10) AS w_{weight}
 			FROM x_ct_reduce
 			LEFT JOIN sum_source_{weight}_1
 			ON x_ct_reduce.source_ctuid = sum_source_{weight}_1.source_ctuid),

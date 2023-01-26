@@ -31,7 +31,7 @@ def save_crosswalk(table_name):
 
     df = pd.concat([df1,df2])
 
-    df.to_csv("crosswalk_tables/" + table_name + ".csv", index=False, float_format='%.9f')
+    df.to_csv("crosswalk_tables/" + table_name + ".csv", index=False, float_format='%.10f')
     
 
 for table in [
