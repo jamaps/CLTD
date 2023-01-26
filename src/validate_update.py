@@ -184,6 +184,217 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 	with connection.cursor() as cursor:
 		cursor.execute(query)
 
+
+	print("running list of manuel updates:")
+
+	update_query = './updates.sql'
+
+	with open(update_query) as file:
+		query = file.read()
+
+	with connection.cursor() as cursor:
+		cursor.execute(query)
+	
+
+
+
+	print("filling holes: " + crosswalk_table)
+
+	if len(weights) > 1:
+
+		query = f"""
+
+		DROP TABLE IF EXISTS temp_to_insert;
+		CREATE TABLE temp_to_insert AS
+		WITH target_count AS (SELECT 
+			target_ctuid,
+			COUNT(*) AS target_count 
+			FROM {crosswalk_table}
+			GROUP BY target_ctuid
+			ORDER BY target_ctuid), 
+		possible_holes AS (
+			SELECT * FROM {crosswalk_table}
+			WHERE source_ctuid = '-1'
+			AND target_ctuid IN (SELECT target_ctuid FROM target_count WHERE target_count = 1)
+		),
+		area_intersection AS (
+			SELECT 
+			{source}.{source_id} AS source_ctuid,
+			{target}.{target_id} AS target_ctuid,
+			ST_Area(ST_Intersection(ST_MakeValid({source}.geom),ST_MakeValid({target}.geom))::geography) AS area
+			FROM {source} LEFT JOIN {target}
+			ON ST_Intersects(ST_MakeValid({source}.geom),ST_MakeValid({target}.geom))
+			WHERE {source}.geom && {target}.geom
+			AND {target}.{target_id} IN (SELECT target_ctuid FROM possible_holes)
+		),
+		area_intersection_reduce AS (SELECT 
+			source_ctuid,
+			target_ctuid,
+			area
+			FROM area_intersection g1
+			WHERE area = ( SELECT MAX( g2.area )
+						FROM area_intersection g2
+						WHERE g1.target_ctuid = g2.target_ctuid )
+			ORDER BY target_ctuid
+		),
+		source_union as (
+			SELECT ST_Union(geom) as geom FROM {source}
+		),
+		target_contained AS (
+			SELECT {target}.{target_id} as target_ctuid
+			FROM {target}, source_union
+			WHERE ST_Within({target}.geom, source_union.geom)
+			ORDER BY {target}.{target_id}
+		),
+		insert_and_delete AS (
+		SELECT
+			source_ctuid,
+			target_ctuid,
+			0.0000000001 AS w_{weights[0]},
+			0.0000000001 AS w_{weights[1]},
+			'id' AS f
+			FROM area_intersection_reduce
+			WHERE target_ctuid IN (SELECT target_ctuid FROM target_contained)
+		),
+		insert_only AS (
+			SELECT
+			source_ctuid,
+			target_ctuid,
+			0.0000000001 AS w_{weights[0]},
+			0.0000000001 AS w_{weights[1]},
+			'i' AS f
+			FROM area_intersection_reduce
+			WHERE area > 750000
+			AND target_ctuid NOT IN (SELECT target_ctuid FROM insert_and_delete)
+		)
+		SELECT * FROM insert_and_delete
+		UNION
+		SELECT * FROM insert_only;
+
+		INSERT INTO {crosswalk_table}
+		SELECT
+		source_ctuid,
+		target_ctuid,
+		w_{weights[0]},
+		w_{weights[1]}
+		FROM temp_to_insert;
+
+		DELETE FROM {crosswalk_table}
+		WHERE source_ctuid = '-1'
+		AND target_ctuid IN (SELECT target_ctuid FROM temp_to_insert WHERE f = 'id');
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = ROUND(w_{weights[0]}, 10);
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = w_{weights[0]} + 0.0000000001 WHERE w_{weights[0]} = 0.0000000000;
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[1]} = ROUND(w_{weights[1]}, 10);
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[1]} = w_{weights[1]} + 0.0000000001 WHERE w_{weights[1]} = 0.0000000000;
+
+		DROP TABLE IF EXISTS temp_to_insert;
+		"""
+
+	elif len(weights) == 1:
+
+		query = f"""
+
+		DROP TABLE IF EXISTS temp_to_insert;
+		CREATE TABLE temp_to_insert AS
+		WITH target_count AS (SELECT 
+			target_ctuid,
+			COUNT(*) AS target_count 
+			FROM {crosswalk_table}
+			GROUP BY target_ctuid
+			ORDER BY target_ctuid), 
+		possible_holes AS (
+			SELECT * FROM {crosswalk_table}
+			WHERE source_ctuid = '-1'
+			AND target_ctuid IN (SELECT target_ctuid FROM target_count WHERE target_count = 1)
+		),
+		area_intersection AS (
+			SELECT 
+			{source}.{source_id} AS source_ctuid,
+			{target}.{target_id} AS target_ctuid,
+			ST_Area(ST_Intersection(ST_MakeValid({source}.geom),ST_MakeValid({target}.geom))::geography) AS area
+			FROM {source} LEFT JOIN {target}
+			ON ST_Intersects(ST_MakeValid({source}.geom),ST_MakeValid({target}.geom))
+			WHERE {source}.geom && {target}.geom
+			AND {target}.{target_id} IN (SELECT target_ctuid FROM possible_holes)
+		),
+		area_intersection_reduce AS (SELECT 
+			source_ctuid,
+			target_ctuid,
+			area
+			FROM area_intersection g1
+			WHERE area = ( SELECT MAX( g2.area )
+						FROM area_intersection g2
+						WHERE g1.target_ctuid = g2.target_ctuid )
+			ORDER BY target_ctuid
+		),
+		source_union as (
+			SELECT ST_Union(geom) as geom FROM {source}
+		),
+		target_contained AS (
+			SELECT {target}.{target_id} as target_ctuid
+			FROM {target}, source_union
+			WHERE ST_Within({target}.geom, source_union.geom)
+			ORDER BY {target}.{target_id}
+		),
+		insert_and_delete AS (
+		SELECT
+			source_ctuid,
+			target_ctuid,
+			0.0000000001 AS w_{weights[0]},
+			'id' AS f
+			FROM area_intersection_reduce
+			WHERE target_ctuid IN (SELECT target_ctuid FROM target_contained)
+		),
+		insert_only AS (
+			SELECT
+			source_ctuid,
+			target_ctuid,
+			0.0000000001 AS w_{weights[0]},
+			'i' AS f
+			FROM area_intersection_reduce
+			WHERE area > 750000
+			AND target_ctuid NOT IN (SELECT target_ctuid FROM insert_and_delete)
+		)
+		SELECT * FROM insert_and_delete
+		UNION
+		SELECT * FROM insert_only;
+
+		INSERT INTO {crosswalk_table}
+		SELECT
+		source_ctuid,
+		target_ctuid,
+		w_{weights[0]}
+		FROM temp_to_insert;
+
+		DELETE FROM {crosswalk_table}
+		WHERE source_ctuid = '-1'
+		AND target_ctuid IN (SELECT target_ctuid FROM temp_to_insert WHERE f = 'id');
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = ROUND(w_{weights[0]}, 10);
+
+		UPDATE {crosswalk_table}
+		SET w_{weights[0]} = w_{weights[0]} + 0.0000000001 WHERE w_{weights[0]} = 0.0000000000;
+
+		DROP TABLE IF EXISTS temp_to_insert;
+		"""
+
+	else:
+
+		query = ""
+
+	with connection.cursor() as cursor:
+		cursor.execute(query)
+
+
 	with connection.cursor() as cursor:
 		cursor.execute(f"SELECT COUNT(DISTINCT source_ctuid) FROM {crosswalk_table};")
 		result = cursor.fetchone();
@@ -206,43 +417,43 @@ def update_crosswalk(crosswalk_table, source, target, weights, source_id, target
 
 
 
-# update_crosswalk("ct_1951_1956", "in_1951_ct", "in_1956_ct", ["area"], "geosid", "geosid")
-# update_crosswalk("ct_1951_2021", "in_1951_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+update_crosswalk("ct_1951_1956", "in_1951_ct", "in_1956_ct", ["area"], "geosid", "geosid")
+update_crosswalk("ct_1951_2021", "in_1951_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1956_1961", "in_1956_ct", "in_1961_ct", ["area"], "geosid", "geosid")
-# update_crosswalk("ct_1956_2021", "in_1956_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+update_crosswalk("ct_1956_1961", "in_1956_ct", "in_1961_ct", ["area"], "geosid", "geosid")
+update_crosswalk("ct_1956_2021", "in_1956_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1961_1966", "in_1961_ct", "in_1966_ct", ["area"], "geosid", "geosid")
-# update_crosswalk("ct_1961_2021", "in_1961_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+update_crosswalk("ct_1961_1966", "in_1961_ct", "in_1966_ct", ["area"], "geosid", "geosid")
+update_crosswalk("ct_1961_2021", "in_1961_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1966_1971", "in_1966_ct", "in_1971_cbf_ct", ["area"], "geosid", "geosid")
-# update_crosswalk("ct_1966_2021", "in_1966_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
+update_crosswalk("ct_1966_1971", "in_1966_ct", "in_1971_cbf_ct", ["area"], "geosid", "geosid")
+update_crosswalk("ct_1966_2021", "in_1966_ct", "in_2021_cbf_ct", ["area"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1971_1976", "in_1971_cbf_ct", "in_1976_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
-# update_crosswalk("ct_1971_2021", "in_1971_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1971_1976", "in_1971_cbf_ct", "in_1976_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1971_2021", "in_1971_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1976_1981", "in_1976_cbf_ct", "in_1981_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1976_1981", "in_1976_cbf_ct", "in_1981_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
 update_crosswalk("ct_1976_2021", "in_1976_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1981_1986", "in_1981_cbf_ct", "in_1986_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
-# update_crosswalk("ct_1981_2021", "in_1981_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1981_1986", "in_1981_cbf_ct", "in_1986_cbf_ct", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1981_2021", "in_1981_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1986_1991", "in_1986_cbf_ct", "in_1991_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
-# update_crosswalk("ct_1986_2021", "in_1986_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1986_1991", "in_1986_cbf_ct", "in_1991_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1986_2021", "in_1986_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
-# update_crosswalk("ct_1991_2021", "in_1991_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1991_1996", "in_1991_cbf_ct_moved_clipped", "in_1996_cbf_ct_moved_clipped", ["pop", "dwe"], "geosid", "geosid")
+update_crosswalk("ct_1991_2021", "in_1991_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
-# update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1996_2001", "in_1996_cbf_ct_moved_clipped", "in_2001_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
+update_crosswalk("ct_1996_2021", "in_1996_cbf_ct_moved_clipped", "in_2021_cbf_ct", ["pop", "dwe"], "geosid", "ctuid")
 
-# update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
-# update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2001_2006", "in_2001_cbf_ct", "in_2006_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2001_2021", "in_2001_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
-# update_crosswalk("ct_2006_2021", "in_2006_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2006_2011", "in_2006_cbf_ct", "in_2011_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2006_2021", "in_2006_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
-# update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2011_2016", "in_2011_cbf_ct", "in_2016_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2011_2021", "in_2011_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
 
-# update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
+update_crosswalk("ct_2016_2021", "in_2016_cbf_ct", "in_2021_cbf_ct", ["pop", "dwe"], "ctuid", "ctuid")
