@@ -2,9 +2,18 @@
 
 
 -- 2016
+SELECT * FROM ct_2016_2021 WHERE source_ctuid = '9330007.02';
+UPDATE ct_2016_2021 SET w_pop = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+UPDATE ct_2016_2021 SET w_dwe = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+INSERT INTO ct_2016_2021 VALUES ('9330007.02', '9330009.02', 0.008, 0.008);
 
 
 -- 2011
+SELECT * FROM ct_2011_2021 WHERE source_ctuid = '9330007.02';
+UPDATE ct_2011_2021 SET w_pop = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+UPDATE ct_2011_2021 SET w_dwe = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+INSERT INTO ct_2011_2021 VALUES ('9330007.02', '9330009.02', 0.008, 0.008);
+
 SELECT * FROM ct_2011_2021 WHERE source_ctuid = '7050101.01';
 UPDATE ct_2011_2021 SET w_pop = 0.99999995 WHERE source_ctuid = '7050101.01' AND target_ctuid = '7050101.01';
 UPDATE ct_2011_2021 SET w_dwe = 0.99999995 WHERE source_ctuid = '7050101.01' AND target_ctuid = '7050101.01';
@@ -18,6 +27,11 @@ INSERT INTO ct_2016_2021 VALUES ('7050101.01', '-1', 0.00000005, 0.00000005);
 
 
 -- 2006
+SELECT * FROM ct_2006_2021 WHERE source_ctuid = '9330007.02';
+UPDATE ct_2006_2021 SET w_pop = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+UPDATE ct_2006_2021 SET w_dwe = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+INSERT INTO ct_2006_2021 VALUES ('9330007.02', '9330009.02', 0.008, 0.008);
+
 SELECT * FROM ct_2006_2021 WHERE source_ctuid = '7050101.00';
 UPDATE ct_2006_2021 SET w_pop = 0.00000006 WHERE source_ctuid = '7050101.00' AND target_ctuid = '-1';
 UPDATE ct_2006_2021 SET w_dwe = 0.00000007 WHERE source_ctuid = '7050101.00' AND target_ctuid = '-1';
@@ -25,6 +39,11 @@ UPDATE ct_2006_2021 SET w_pop = 0.00000001 WHERE source_ctuid = '7050101.00' AND
 UPDATE ct_2006_2021 SET w_dwe = 0.00000001 WHERE source_ctuid = '7050101.00' AND target_ctuid = '7050104.00';
 
 -- 2001
+SELECT * FROM ct_2001_2021 WHERE source_ctuid = '9330007.02';
+UPDATE ct_2001_2021 SET w_pop = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+UPDATE ct_2001_2021 SET w_dwe = 0.992 WHERE source_ctuid = '9330007.02' AND target_ctuid = '9330007.02';
+INSERT INTO ct_2001_2021 VALUES ('9330007.02', '9330009.02', 0.008, 0.008);
+
 SELECT * FROM ct_2001_2021 WHERE source_ctuid = '7050101.00';
 UPDATE ct_2001_2021 SET w_pop = 0.00000070 WHERE source_ctuid = '7050101.00' AND target_ctuid = '-1';
 UPDATE ct_2001_2021 SET w_dwe = 0.00000090 WHERE source_ctuid = '7050101.00' AND target_ctuid = '-1';
